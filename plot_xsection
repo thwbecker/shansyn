@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# originally from Lukas Heiniger, Copyright 2010
+#
+# modified by Thorsten Becker
+
+# start and end point of xsection
+start="9.0 35.0"
+end="80.0 -80.0"
+dinc="0.1"
+zmin="100"
+zmax="2800"
+zinc="50"
+viewpoint="0.0/-20.0"
+
+# files
+shsyn_xsection="shsyn-xsection"
+shfile=$datadir/tomography/models/s20rtsb.31.m.ab
+
+ps="xsection.ps"
+
+# create the cross section
+echo $shsyn_xsection $shfile $dinc $start $end $zinc $zmin $zmax 
+#exit
+$shsyn_xsection $shfile $dinc $start $end $zinc $zmin $zmax > xsection.xyz
+
+
+# calculate angular distance between start and end
+grdmath -Rg -I1 $start SDIST = dist.grd
+dist=`echo $end | grdtrack -Gdist.grd | awk '{print int($3)}'`
+((off=dist / 4))
+echo $0: start $start end $end dist $dist $off
+
+makecpt -Cseis -D -T-2/2/0.001 > velo.cpt
+rmin=`minmax -C xsection.xyz | awk '{print $3}'`
+rmax=`minmax -C xsection.xyz | awk '{print $4}'`
+psbasemap -R0/$dist/$rmin/$rmax -JP10c/-`echo $off`z -B30p/500 -K -V -P > $ps
+cat xsection.xyz | psxy -R -J -B -Sc0.05c -Cvelo.cpt -O -K >> $ps
+psscale -D2c/8c/4c/0.5ch -B1:"% PREM": -Cvelo.cpt -O -K >> $ps
+#Sub plot of world
+pscoast -Rg -JG$viewpoint/7c -B15g15 -Dc -A5000 -Ggray -O -K -Y2c -X10c -V >> $ps 
+psxy -R -J -Wthicker/red -V -O >> $ps << END
+$start 
+$end
+END
+modifybb $ps 2> /dev/null
+#gs $ps
