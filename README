@@ -1,0 +1,307 @@
+################################################################################
+#                                                                              #
+#  README for the shansyn package: spherical harmonic analysis and synthesis   #
+#                                                                              #
+#                                                                              #
+#  for license and copyrights, see the file COPYRIGHT.                         #
+#                                                                              #
+#    Copyright (C) 1999 - 2016  Thorsten W. Becker                             #
+#                               twb@ig.utexas.edu                              #
+#                                                                              #
+#                     ---- Third party additions ---                           #
+#                                                                              #
+# - BWGSH: Generalized spherical harmonics analysis and synthesis routines     #
+#   from Boschi and Woodhouse (2006), here provided as a standalone package    #
+#   bwgsh.tgz                                                                  #
+#                                                                              #
+# - shsyn-xsection was originally contributed by Lukas Heiniger on             #
+#   22.06.10. Copyright 2010                                                   #
+#                                                                              #
+################################################################################
+
+
+This is the README file with brief instructions for installation and
+usage of the 'shansyn' package of spherical harmonics analysis and
+synthesis tools for UNIX/GMT environments, hereafter simply referred
+to as shansyn. For the copyrights for various parts of shansyn, which
+might or might not be held by me, see the file COPYRIGHT.
+
+PLEASE NOTE: 
+
+shansyn is expected to work properly, has been tested over several
+years, but is still in research state, and not 'officially' released
+or properly documented. This means that you might experience some
+difficulty in installing and/or running the software. However, people
+were able to use this code on various platforms without much effort,
+and results were reproduced etc.
+
+Since there are other, better documented packages out there such as
+SHTOOLS, development of new features is somewhat on hold. This
+software came out of a class project twenty years ago, so the coding
+is not very elegant. However, everything is expected to work and
+should be helpful in dealing with, for example, the spherical harmonic
+models of the Becker and Boschi (G-Cubed, 2002) compilation.
+
+Should you have problems with the compile, the UGESCE VirtualBox
+distribution at
+
+http://www-udc.ig.utexas.edu/external/becker/ugesce.html
+
+also has shansyn installed. 
+
+
+NUMERICAL ACCURACY, EFFICIENCY, AND ROBUSTNESS
+
+A) spherical harmonic analysis: shana can use simplex integration, and
+Gaussian integration, but not inverse FFT for longitudes (no reason).
+
+If you want to determine coefficients by least squares, shana can
+produce the A matrix for |Ax-y| -> 0, rudimentary matrix inversion is
+now built in.
+
+B) spherical harmonic synthesis: shsyn can use efficient inverse FFT,
+and simple summation.
+
+Most programs tell the user what they do when they are invoked with
+the '-h' option and most routines are fairly thoroughly tested to work
+up to very high (~>300) degrees. However, you might still get
+confusing and/or erroneous results due to inappropriate usage or
+programming errors.
+
+Please notify me if you find any bugs or inconsistencies.  However,
+please also try to solve the problem first yourself since I do not
+have much time for 'support'.  Thanks! And: No guarantees whatsoever.
+
+
+INSTALLATION:
+
+You will have to have netcdf and GMT installed to compile most of the
+tools. If -DUSE_LAPACK is defined for matrix least squares inversion
+capabilities, you will need LAPACK/BLAS installed. If you don't know
+what I'm talking about, ask your systems administrator. 
+
+
+- ARCH:
+
+To compile all programs, first define an environment variable ARCH,
+and then type 'make' in the shansyn directory. ARCH should reflect
+your hardware, such as
+
+setenv ARCH x86_64
+
+for 64 bit Linux. If you're using csh/tcsh, for example, you could put
+a statement like
+
+
+setenv ARCH `uname -m | gawk '{print(tolower($1))}'`
+
+in your .cshrc to set this environment variable automatically. 
+
+- FLAGS in machine_dependent.$ARCH.m
+
+To adjust compilation flags, modify the file machine_dependent.$ARCH.m
+that gets read in from the Makefile like so
+
+include machine_dependent.$(ARCH).m
+
+to suit your local settings and compiler flags. I.e. modify
+machine_dependent.$ARCH.m and not the makefile itself.
+
+There are comments in the example files given, refer to them for
+further instructions. Successful compilations have been reported under
+LINUX, Mac OS-X, IRIX, and Solaris.
+
+       In particular,  GMTHOME and NETCDFDIR:
+
+       The makefile looks in $(GMTHOME)/src/ for the GMT include
+       files, and searches in $(NETCDFDIR)/include/ for the netcdf.h
+       files. Libraries are expected in $(GMTHOME)/lib/ and
+       $(NETCDFDIR)/lib/
+
+       Should you want LAPACK inversion built in, you also need 
+       to define MATHLIBS, to something like "-llapack -lblas -lm"
+
+       Here are example Intel and GNU compiler setups:
+
+ if [ $use_intel -eq 1 ];then
+      export F77=ifort
+      export F90=$F77
+      export CC=icc
+      export LDFLAGS="-lm"
+      export CFLAGS="-O3 -DLINUX_SUBROUTINE_CONVENTION"
+      export CFLAGS_DEBUG="-g -DLINUX_SUBROUTINE_CONVENTION"
+      export FFLAGS="-O3 -fpp -nofor-main"
+      export FFLAGS_DEBUG="-g -fpp -nofor-main"
+      export F90FLAGS=$FFLAGS
+      export F90FLAGS_DEBUG=$FFLAGS_DEBUG
+      export F_EXT_SOURCE_FLAG=-extend_source 
+      export FTRN_LIB="-lifcore"
+      export MATHLIBS="-mkl"
+
+  else
+      export F77=gfortran
+      export F90=$F77
+      export CC=gcc
+      export LDFLAGS="-lm"
+      export CFLAGS="-O3 -DLINUX_SUBROUTINE_CONVENTION"
+      export CFLAGS_DEBUG="-g -DLINUX_SUBROUTINE_CONVENTION"
+      export FFLAGS="-O3 -x f77-cpp-input"
+      export FFLAGS_DEBUG="-g -x f77-cpp-input"
+      export F90FLAGS="-O3 -x f95-cpp-input" 
+      export F90FLAGS_DEBUG="-O3 -x f95-cpp-input" 
+      export F_EXT_SOURCE_FLAG=-ffixed-line-length-132 
+      export FTRN_LIB=-lgfortran
+      export MATHLIBS="-llapack -lblas" 
+  fi
+
+
+- compilation with "make"
+
+Various tools should be compiled and then put into the 'bin/$ARCH/'
+directory where ARCH is the architecture flag. After compilation, you
+should put the aforementioned directory in your path as defined in the
+.cshrc or similar. I will assume you have done that in the remainder.
+
+
+MAIN PROGRAM USAGE:
+
+The main programs are 'shana' and 'shsyn' for spherical harmonic
+analysis and synthesis (go from spatial data to spherical harmonic
+coefficients and vice versa, respectively). All program use the
+theoretical physics normalization for real spherical harmonics as in
+Dahlen and Tromp ('Theoretical Global Seismology', Princeton
+University Press, Appendix B.8 and p. 859, 1998).  You can use
+'abconvert' to convert to other formats, though. All other binaries
+might be of limited interest to the general public, but see below for
+the Becker & Boschi tomography format. Again, you can obtain a short
+man page from each program by typing 'program -h'.
+
+
+Examples:
+
+	a)	
+
+	shana 40 etopo5.0.25 > etopo5.40.ab
+
+	Take the GMT grd file etopo5.0.25.grd and expand it up to
+	l_{max}=40, write the result in the standard ASCII format to
+	the file etopo5.40.ab.
+
+
+
+	b)
+
+	cat etopo5.40.ab | abconvert 2 > etopo5.40.pwr
+
+
+	Compute the power per degree and unit area as in Dahlen and
+	Tromp (1998, B.8) and write the result in ASCII format to
+	etopo5.40.pwr.
+
+
+
+	c)
+
+	cat etopo5.40.ab | shsyn 1 0 etopo5.40
+
+	Expand the spherical harmonic coefficients in etopo5.40.ab on
+	a 1 degree by 1 degree grd file named etopo5.40.grd using
+	simple summing. 
+
+        
+        d)
+
+
+        shana 50 d.1 > d1.ab ; shana 50 d.2 > d2.ab; cat d1.ab d2.ab | abconvert 5
+
+	Compute the correlation per degree and unit area up to L=50 for
+	GMT grd files d.1.grd and d.2.grd.
+
+	
+
+SUPPORT PROGRAM USAGE AND HANDLING SEISMIC TOMOGRAPHY
+
+Shansyn also comes with several program that deal with 'model' files,
+i.e. sets of spherical harmonics expansions at different depth levels
+as used, for example, in describing scalar fields such as wave speed
+anomalies in a 3-D geometry, e.g. the Earth's mantle. The scalar model
+file format is described on
+
+     http://www-udc.ig.utexas.edu/external/becker/tomography/
+
+and the corresponding Becker & Boschi (G-Cubed, 2002) article. This
+web page has a number of tomographic models, an updated tomography
+model repository can be found as part of SEATREE
+
+   http://geosys.usc.edu/projects/seatree/
+
+at
+
+https://geosys.usc.edu/projects/seatree/browser/trunk/python/data/hc/tomography
+
+
+The following programs deal with model files:
+
+	
+	extract_layer: extract a layer from the model file. Uses linear inter-
+			and extrapolation if not told else wise. 
+
+	cmodelpower: calculate the spectral power of a model per depth
+
+	cmodelmeancorr: calculate the mean correlation between two
+			models 
+
+	cmodelcorr: calculate the correlation between models per depth
+
+	cradialcorr: calculate the radial correlation function of a
+			model
+
+	extract_model_depths: extract the depths of the expansion
+		layers of a model
+
+	scale_model: scale all layers of a model with scalar
+
+	modmodellmax: modify the nominal L_max of a model file
+
+	sh_to_grds: convert a spherical harmonics model to a set of grd files
+
+	grds_to_sh: convert a set of grd files (e.g. tomographic model
+	slices at different depths to a .m.ab spherical harmonics
+	model)
+
+Example:
+
+	extract_layer s362d1.31.m.ab 500 | shsyn 1 1 d.500
+
+		extract spherical harmonics expansion layer at depth
+		500 from model file s362d1.31.m.ab and expand at one
+		degree resolution into GMT grd file named d.500.grd
+
+
+There are also versions of these tools than can deal with generalized
+spherical harmonics models, indicated by the _gsh ending of the
+program name:
+
+cmodelcorr_gsh  cmodelpower_gsh  cradialcorr_gsh  extract_layer_gsh  extract_model_depths_gsh
+
+
+- Third party additions 
+
+  - shansyn can process and analyze generalized spherical harmonics
+    models, but not expand them.  The latter functionality is provided
+    by the bwgsh package, by Boschi and Woodhouse (2006).
+
+  - shsyn-xsection and plot_xsection: extract cross sections directly
+    from .ab file, by L. Heiniger.  Broken in most recent
+    reorganization of code.
+
+
+
+
+This is clearly not an exhaustive description of usage but should get
+you started. Good luck.
+
+
+
+
+
