@@ -1596,8 +1596,9 @@ int main(int argc, char *argv[] )
       }
       if(vector_field == 1){
 	if(verbose)
-	  fprintf(stderr,"%s: poltor vector output in ABAB format (physical), lmax=%i\n",argv[0],lmax);
-	write_vector_coefficients(&amp,&amt,&bmp,&bmt,lmax,1.0,TRUE,stdout,1);
+	  fprintf(stderr,"%s: poltor vector output in ABAB format (physical, %s), lmax=%i\n",argv[0],
+		  (out_format==VECABAB_OUT_LONG)?("long(hc)"):("regular (short)"),lmax);
+	write_vector_coefficients(&amp,&amt,&bmp,&bmt,lmax,1.0,(out_format==VECABAB_OUT_LONG)?(2):(1),stdout,1);
       }else{			/* GSH */
 	if(verbose)
 	  fprintf(stderr,"%s: GSH output in Ar Ai Br Bi format, lmax=%i\n",argv[0],lmax);
