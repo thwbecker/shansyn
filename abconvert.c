@@ -1604,7 +1604,7 @@ int main(int argc, char *argv[] )
 	  fprintf(stderr,"%s: GSH output in Ar Ai Br Bi format, lmax=%i\n",argv[0],lmax);
 	fprintf(stdout,"%i %i\n",lmax,ialpha);
 	/* note this has mixed arguments on purpose */
-	write_vector_coefficients(&amp,&bmp,&amt,&bmt,lmax,1.0,FALSE,stdout,1);
+	write_vector_coefficients(&amp,&bmp,&amt,&bmt,lmax,1.0,0,stdout,1);
       }
       break;
     }
@@ -1620,7 +1620,7 @@ int main(int argc, char *argv[] )
       }
       if(verbose)
 	fprintf(stderr,"%s: poltor vector output in new ABAB format (physical), lmax=%i\n",argv[0],lmax);
-      write_vector_coefficients(&amp,&amt,&bmp,&bmt,lmax,1.0,TRUE,stdout,1);
+      write_vector_coefficients(&amp,&amt,&bmp,&bmt,lmax,1.0,1,stdout,1);
       break;
     }
     case VECAABBR_OUT:{
