@@ -453,7 +453,8 @@ int main(int argc, char *argv[] )
   if(verbose)
     fprintf(stderr,"%s: Done.\n",argv[0]);
 
-  GMT_end (argc, argv);
+  // this would be nice, but it saometimes gave a double free error, need to check
+  //GMT_end (argc, argv);
 
 	
   return 0;
@@ -477,8 +478,10 @@ void calc_coeff(DATA_PRECISION **func,int lmax,
 		int calculate_derivatives, 
 		int pixelreg, COMP_PRECISION damping)
 {
-  COMP_PRECISION *y=NULL,*x=NULL,*p=NULL,theta,phi,f[3][2],*sinfac=NULL,*dptheta=NULL,tmp,tmp2,
-    *cosarr=NULL,*sinarr=NULL,atmp[2],btmp[2],ctmp[2],dist,*oneoverl=NULL,sinphi,cosphi,
+  COMP_PRECISION *y=NULL,*x=NULL,
+    *p=NULL,theta,phi,f[3][2],*sinfac=NULL,*dptheta=NULL,tmp,tmp2,
+    *cosarr=NULL,*sinarr=NULL,atmp[2],btmp[2],ctmp[2],dist,
+    *oneoverl=NULL,sinphi,cosphi,
     *tmp_func,*absc=NULL,sintheta,costheta,dummy,*sndder,phirange,
     thetarange,norm,chi2,sum,dnorm;
   static COMP_PRECISION normfac,sqrt2normfac;
@@ -1616,6 +1619,8 @@ void make_a(int lmax, int lmsize, int nrp, float **a, DATA_PRECISION *cloc,int v
     mycalloc_cp(&dptheta,lmsize * nrp);
     pdtheta_lgndr(y,nrp,p,dptheta,lmax,dp2,0);
     free(y);
+  }else{
+    dp2 = NULL;
   }
 
   /* 
