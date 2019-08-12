@@ -420,7 +420,10 @@ int main(int argc, char *argv[] )
 	  os1 = POSLM(l, m);
 	  if((fscanf(stdin,TWO_TWO_DATA_FSCAN_FORMAT,
 		     (a+os1),(b+os1)))!=2){
-	    if(verbose)fprintf(stderr,"%s: read error, l=%i m=%i\n\n",argv[0],l,m);exit(-1);}
+	    if(verbose)
+	      fprintf(stderr,"%s: read error, l=%i m=%i\n\n",argv[0],l,m);
+	    exit(-1);
+	  }
 	  *(a+os1) *= GEODETIC_FACTOR(l, m);
 	  *(b+os1) *= GEODETIC_FACTOR(l, m);
 	}
@@ -446,7 +449,9 @@ int main(int argc, char *argv[] )
 	  os1 = POSLM(l, m);
 	  if((fscanf(stdin,TWO_TWO_DATA_FSCAN_FORMAT,
 		     (a+os1),(b+os1)))!=2){
-	    if(verbose)fprintf(stderr,"%s: read error, l=%i m=%i\n\n",argv[0],l,m);exit(-1);}
+	    if(verbose)fprintf(stderr,"%s: read error, l=%i m=%i\n\n",argv[0],l,m);
+	    exit(-1);
+	  }
 	}
       // go from "fully normalized" (Edmonds or old Harvard)  to Rick's convention
       // (this from advect code....)
@@ -628,7 +633,9 @@ int main(int argc, char *argv[] )
 	    for(m=0;m<=l;m++){
 	      os1 = POSLM(l, m);
 	      if((fscanf(stdin,TWO_DATA_FSCAN_FORMAT,(c+os1),(d+os1)))!=2){
-		if(verbose)fprintf(stderr,"%s: second file read error, l=%i m=%i\n\n",argv[0],l,m);exit(-1);}
+		if(verbose)fprintf(stderr,"%s: second file read error, l=%i m=%i\n\n",argv[0],l,m);
+		exit(-1);
+	      }
 	    }
 	  break;
 	case GSH_INPUT:		/* scalar, gsh */
@@ -860,7 +867,11 @@ int main(int argc, char *argv[] )
 	break;
       }
       case ONLY_L_ZERO:{
-	fprintf(stderr,"%s: removing all bu l=0 term (RMS=0)\n",argv[0]);
+	fprintf(stderr,"%s: removing all but l=0 term (RMS=0)\n",argv[0]);
+	break;
+      }
+      case ONLY_M0_TERMS:{
+	fprintf(stderr,"%s: only keeping m=0 terms\n",argv[0]);
 	break;
       }
       case FROM_FILE_TAPER:{
@@ -1721,6 +1732,13 @@ void taperf(COMP_PRECISION *fac,
       else
 	fac[0] = fac[1] = 1.0;
       break;
+    case ONLY_M0_TERMS:
+      if(m == 0){
+	fac[0] = fac[1] = 1.0;
+      }else{
+	fac[0] = fac[1] = 0.0;
+      }
+      break;
     case ZERO_TAPER:
       fac[0] = fac[1] = 1.0;
       break;
@@ -1792,6 +1810,14 @@ void taperf(COMP_PRECISION *fac,
       }
       break;
     }
+    case ONLY_M0_TERMS:
+      if(m == 0){
+	fac[0] = fac[1] = 1.0;
+      }else{
+	fac[0] = fac[1] = 0.0;
+      }
+      break;
+ 
     case ONLY_L_ZERO:{
       if(l != 0){
 	fac[0] = fac[1] = 0.0;
@@ -1901,7 +1927,9 @@ void phelp(char *name)
 
   fprintf(stderr,"\t                 %i:  all coefficients l'>=lc set to zero (see -lmax for highpass)\n",ZERO_TAPER);
   fprintf(stderr,"\t                 %i:  l=0 term is set to zero (mean=0)\n",L0_TAPER);
-  fprintf(stderr,"\t                 %i:  only l=0 term is passed  (RMS=0)\n\n",ONLY_L_ZERO);
+  fprintf(stderr,"\t                 %i:  only l=0 term is passed  (RMS=0)\n",ONLY_L_ZERO);
+  fprintf(stderr,"\t                 %i:  only m=0 terms are passed\n\n",ONLY_M0_TERMS);
+  
   fprintf(stderr,"\t                 %i:  compute Laplacian (multiply with - l(l+1))\n\n",LAPLACIAN);
 
   fprintf(stderr,"\t                 %i:  read in w_0 ... w_{l_{max}} weights from file \"%s\"\n",

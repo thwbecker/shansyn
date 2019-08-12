@@ -58,7 +58,7 @@
    Legendre functions each time....
    in MB
 */
-#define P_MEM_LIMIT 1500.0
+#define P_MEM_LIMIT 4200.0
 
 
 

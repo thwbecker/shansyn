@@ -1818,16 +1818,16 @@ DATA_PRECISION dist_rad(DATA_PRECISION *cloc, int i, int j)
 void check_opmode(char *argument, int *op_mode, char *filename,
 		  int *vectors, int *calculate_derivatives)
 {
-  char a[2],b[2],c[2],d[2],f[2],g[2],h[2],i[2],j[2];
-  sprintf(a,"%i",BLOCK);
-  sprintf(b,"%i",CONTOUR);
-  sprintf(c,"%i",ASCII_BLOCK);
-  sprintf(d,"%i",ASCII_BLOCK_HEADER);
-  sprintf(f,"%i",POINTS_FOR_A_MATRIX);
-  sprintf(g,"%i",POINTS_FOR_AB);
-  sprintf(h,"%i",POINTS_FOR_A_MATRIX_ASCII);
-  sprintf(i,"%i",POINTS_FOR_AVEC_MATRIX);
-  sprintf(j,"%i",POINTS_FOR_AVEC_MATRIX_ASCII);
+  char a[3],b[3],c[3],d[3],f[3],g[3],h[3],i[3],j[3];
+  sprintf(a,"%1i",BLOCK);
+  sprintf(b,"%1i",CONTOUR);
+  sprintf(c,"%1i",ASCII_BLOCK);
+  sprintf(d,"%1i",ASCII_BLOCK_HEADER);
+  sprintf(f,"%1i",POINTS_FOR_A_MATRIX);
+  sprintf(g,"%1i",POINTS_FOR_AB);
+  sprintf(h,"%1i",POINTS_FOR_A_MATRIX_ASCII);
+  sprintf(i,"%1i",POINTS_FOR_AVEC_MATRIX);
+  sprintf(j,"%1i",POINTS_FOR_AVEC_MATRIX_ASCII);
  
   if(strcmp(argument,a) == 0)
     *op_mode=BLOCK;

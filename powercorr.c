@@ -21,8 +21,9 @@ COMP_PRECISION calc_correlation_model(struct mod *model,
 				      int *layer)
 {
   COMP_PRECISION corr;
-  int i;
+
 #ifdef DEBUG
+  int i;
   for(i=0;i<2;i++){
     if((layer[i] < 0) || (layer[i] >= model[i].n)){
       fprintf(stderr,"calc_correlation_model: ERROR: model %i only has %i layers, selected %i\n",

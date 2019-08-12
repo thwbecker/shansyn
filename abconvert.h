@@ -76,12 +76,10 @@
 // file to read filter from 
 #define FILTER_FILE "filter.dat"
 #define FILTER_SH_FILE "filter.ab"
-
 #define ONLY_L_ZERO 18
-
 #define EXP_TAPER 19
 #define HIGHP_TAPER 20
-
+#define ONLY_M0_TERMS 21
 /* 
    input switches 
 */
