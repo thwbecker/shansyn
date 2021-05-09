@@ -3,8 +3,8 @@
 #    shana, shsyn, and assorted species: spherical harmonic analysis and       #
 #                                        synthesis                             #
 #                                                                              #
-#    Copyright (C) 1999 - 2013  Thorsten W. Becker                             #
-#                               twb@usc.edu                                    #
+#    Copyright (C) 1999 - 2021  Thorsten W. Becker                             #
+#                               thwbecker@post.harvard.edu                     #
 #                                                                              #
 #    Might include Numerical Recipes (NR) based routines whose                 #
 #    copyright is held by the NR authors. If NR routines are included,         #
