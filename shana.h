@@ -33,9 +33,11 @@
 */
 #define MEMLIMIT 1000
 
+
 #ifndef GMT_PRECISION
  #define GMT_PRECISION DATA_PRECISION
 #endif
+
 
 #define STRING_LENGTH 100
 

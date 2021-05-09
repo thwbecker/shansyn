@@ -43,7 +43,6 @@ int finite(double );		/* why doesn't this get included with math.h? */
 
 
 */
-
 // check for floating exceptions in velocity routines
 //
 //#define CHECK_FLOATING_EXCEPTION
@@ -57,15 +56,28 @@ int main(int argc, char *argv[] )
   COMP_PRECISION damping,theta,phi;
   double tmpd;
   char *filename;
+#ifdef USE_GMT4
   struct GRD_HEADER *header;
   GMT_LONG dummy[4]={0,0,0,0};
   header=(struct GRD_HEADER *)calloc(1,sizeof(struct GRD_HEADER));
+#else  /* new GMT API */
+  double wesn[6];
+  void *API;                        /* The API control structure */
+  struct GMT_GRID *G = NULL;        /* Structure to hold output grid */
+  struct GMT_GRID_HEADER *header = NULL;
+#endif
+
   filename=(char *)malloc(sizeof(char)*STRING_LENGTH*2);
 
+#ifdef USE_GMT4  
   /*  */
   GMT_begin (argc, argv);
   GMT_grd_init (header, argc, argv, FALSE);
-
+  GMT_program = argv[0];
+#else
+  API = GMT_Create_Session (argv[0], 2U, 0, NULL);
+#endif
+  
   if(argc > 1 && strcmp(argv[1],"-h") == 0 )argc=-9;
 
   calculate_derivatives=vectors=FALSE;
@@ -289,9 +301,9 @@ int main(int argc, char *argv[] )
     break;
   }
     /* 
-
+       
        read in ASCII block data of a global scalar function with header
-
+       
     */
   case ASCII_BLOCK_HEADER:{
     if(verbose)
@@ -316,7 +328,7 @@ int main(int argc, char *argv[] )
 	  exit(-1);
 	}
     if(flip)/* flip the latitudes */
-      gmt2myconvention_rotate(func,nlon,nlat,1.0);
+      gmt2myconvention_rotate4(func,nlon,nlat,1);
     minmax(&min,&max,&avg,func,nlontimesnlat);
     if(verbose)
       field_message(minphi,dphi,maxphi,mintheta,dtheta,maxtheta,nlon,nlat,min,max,avg,argv[0]);
@@ -328,7 +340,7 @@ int main(int argc, char *argv[] )
 
     */
   case GMT_BLOCK:{
-    GMT_program=argv[0];
+#ifdef USE_GMT4
     if((ret_code = GMT_read_grd_info (filename,header))< 0){
       /* return code has changed for GMT4, i presume? */
       fprintf(stderr,"%s: error opening %s for grdinfo\n",argv[0],filename);
@@ -346,14 +358,43 @@ int main(int argc, char *argv[] )
       nlon=header->nx;
       nlat=header->ny;
     }
+#else
+    /* read header info */
+    if((G = GMT_Read_Data (API, GMT_IS_GRID, GMT_IS_FILE,
+			   GMT_IS_SURFACE, GMT_CONTAINER_ONLY, NULL, filename, NULL))==NULL)
+      return (-1);
+    header = G->header;
+
+    pixelreg=(header->registration == GMT_GRID_PIXEL_REG)?TRUE:FALSE;
+    minphi=LONGITUDE2PHI(header->wesn[XLO]+(pixelreg?header->inc[GMT_X]/2.0:0.0));	
+    maxphi=LONGITUDE2PHI(header->wesn[XHI]-(pixelreg?header->inc[GMT_X]/2.0:0.0));
+    mintheta=LATITUDE2THETA(header->wesn[YLO]+(pixelreg?header->inc[GMT_Y]/2.0:0.0));	
+    maxtheta=LATITUDE2THETA(header->wesn[YHI]-(pixelreg?header->inc[GMT_Y]/2.0:0.0));
+    dphi=  DEG2RAD( header->inc[GMT_X]);
+    dtheta=DEG2RAD( header->inc[GMT_Y]);
+    // for grid line registered nx_i = (x_i^max-x_i^min)/dx_i + 1
+    // for pixel reg            nx_i = (x_i^max-x_i^min)/dx_i
+    nlon=header->n_columns;
+    nlat=header->n_rows;
+    
+#endif
     if(!vectors){ 
       /* 
 	 read in scalar data field from GMT grd file 
       */
       fprintf(stderr,"%s: reading from grd-file %s\n",argv[0],filename);
       myrealloc_dp(&func,nlon*nlat);
+#ifdef USE_GMT4
       GMT_read_grd(filename,header, func, 0.0, 0.0, 0.0, 0.0, dummy, 0);
-      gmt2myconvention_rotate(func,nlon,nlat,1.0);
+      gmt2myconvention_rotate4(func,nlon,nlat,1.0);
+#else
+      /* read data */
+      if((G = GMT_Read_Data (API, GMT_IS_GRID, GMT_IS_FILE,
+			     GMT_IS_SURFACE, GMT_DATA_ONLY, NULL, filename, G))==NULL)
+	return (-1);
+
+      gmt2myconvention_rotate(func,nlon,nlat,1,G);
+#endif
       minmax(&min,&max,&avg,func,(nlontimesnlat=nlat*nlon));
       if(verbose)
 	field_message(minphi,dphi,maxphi,mintheta,dtheta,maxtheta,nlon,nlat,min,max,avg,argv[0]);
@@ -373,14 +414,23 @@ int main(int argc, char *argv[] )
 	fprintf(stderr,"%s: reading phi component from grd-file %s\n",argv[0],filename);
       myrealloc_dp(&func,(nlontimesnlat=nlon*nlat)*2);
       /* read from grid */
+#ifdef USE_GMT4
       GMT_read_grd (filename,header, func, 0.0, 0.0, 0.0, 0.0, dummy, 0);
-      gmt2myconvention_rotate(func,nlon,nlat,1.0);
+      gmt2myconvention_rotate4(func,nlon,nlat,1.0);
+#else  /* read datA */
+      if((G = GMT_Read_Data (API, GMT_IS_GRID, GMT_IS_FILE,
+			     GMT_IS_SURFACE, GMT_DATA_ONLY, NULL, filename, G))==NULL)
+	return (-1);
+      gmt2myconvention_rotate(func,nlon,nlat,1.0,G);
+#endif
       minmax(&min,&max,&avg,func,nlontimesnlat);
       if(verbose)
 	field_message(minphi,dphi,maxphi,mintheta,dtheta,maxtheta,nlon,nlat,min,max,avg,argv[0]);
       /* second velocity file */
       if(verbose)
 	fprintf(stderr,"%s:     and theta component from grd-file %s\n",argv[0],(filename+STRING_LENGTH));
+
+#ifdef USE_GMT4
       if(GMT_read_grd_info ((filename+STRING_LENGTH),header)== -1){
 	fprintf(stderr,"%s: error opening %s for grdinfo\n",argv[0],filename);
 	exit(-1);
@@ -409,8 +459,39 @@ int main(int argc, char *argv[] )
       }
       GMT_read_grd ((filename+STRING_LENGTH),header,
 		    (func+nlontimesnlat), 0.0, 0.0, 0.0, 0.0, dummy, 0);
+      gmt2myconvention_rotate4((func+nlontimesnlat),nlon,nlat,1.0);
       
-      gmt2myconvention_rotate((func+nlontimesnlat),nlon,nlat,1.0);
+#else
+      if((G = GMT_Read_Data(API, GMT_IS_GRID, GMT_IS_FILE, GMT_IS_SURFACE, GMT_CONTAINER_ONLY, NULL, (filename + STRING_LENGTH), NULL))==NULL)
+       return (-1);
+      header = G->header;
+      if(SIGNIFICANTLY_DIFFERENT(header->wesn[XLO], PHI2LONGITUDE(minphi)) ||
+	 SIGNIFICANTLY_DIFFERENT(header->wesn[YLO], THETA2LATITUDE(mintheta)) ||
+	 SIGNIFICANTLY_DIFFERENT(header->wesn[XHI], PHI2LONGITUDE(maxphi)) ||
+	 SIGNIFICANTLY_DIFFERENT(header->wesn[YHI], THETA2LATITUDE(maxtheta)) ||
+	 SIGNIFICANTLY_DIFFERENT(header->n_columns, nlon) || 
+	 SIGNIFICANTLY_DIFFERENT(header->n_rows, nlat)){
+	fprintf(stderr,"%s: %s and %s have to have identical size\n",
+		argv[0],(filename),(filename+STRING_LENGTH));
+	fprintf(stderr,"%s: delta xmin: %g\n",
+		argv[0],header->wesn[XLO]-PHI2LONGITUDE(minphi));
+	fprintf(stderr,"%s: delta ymin: %g\n",
+		argv[0],header->wesn[YLO]-THETA2LATITUDE(mintheta));
+	fprintf(stderr,"%s: delta xmax: %g\n",
+		argv[0],header->wesn[XHI]-PHI2LONGITUDE(maxphi));
+	fprintf(stderr,"%s: delta ymax: %g\n",
+		argv[0],header->wesn[YHI]-THETA2LATITUDE(maxtheta));
+	fprintf(stderr,"%s: delta nx:   %i\n",
+		argv[0],header->n_columns -nlon );
+	fprintf(stderr,"%s: delta ny:   %i\n",
+		argv[0],header->n_rows -nlat );
+	exit(-1);
+      }
+      if((G = GMT_Read_Data (API, GMT_IS_GRID, GMT_IS_FILE,
+			     GMT_IS_SURFACE, GMT_DATA_ONLY, NULL, (filename+STRING_LENGTH), G))==NULL)
+	return (-1);
+      gmt2myconvention_rotate((func+nlontimesnlat),nlon,nlat,1.0,G);
+#endif
       minmax(&min,&max,&avg,(func+nlontimesnlat),nlontimesnlat);
       if(verbose)
 	field_message(minphi,dphi,maxphi,mintheta,
@@ -453,8 +534,12 @@ int main(int argc, char *argv[] )
   if(verbose)
     fprintf(stderr,"%s: Done.\n",argv[0]);
 
+#ifdef USE_GMT4
   // this would be nice, but it saometimes gave a double free error, need to check
   //GMT_end (argc, argv);
+#else
+  GMT_Destroy_Session (API);
+#endif
 
 	
   return 0;
@@ -1863,15 +1948,19 @@ void check_opmode(char *argument, int *op_mode, char *filename,
 
 */
 
-void gmt2myconvention_rotate(GMT_PRECISION *func,int nlon,int nlat,
-			     GMT_PRECISION factor)
+/* 
+   version for GMT4, using array flip 
+*/
+void gmt2myconvention_rotate4(GMT_PRECISION *func,int nlon,int nlat,
+			      GMT_PRECISION factor)
 {
-  int i,j,warned=0,os1,os2,os3;
+  int i,j,warned=0,os1,os2,os3,nm;
   GMT_PRECISION *array;
   mymalloc_dp(&array,nlon * nlat);
   // scale
-  for(i=0;i<nlon*nlat;i++){
-    if(!myfinite(*(func+i))){
+  nm = nlon*nlat;
+  for(i=0;i<nm;i++){
+    if(!myfinite(func[i])){
       func[i]=0.0;
       if(!warned){
 	fprintf(stderr,"WARNING: at least one NaN entry in the data has been replaced with zero\n");
@@ -1888,6 +1977,33 @@ void gmt2myconvention_rotate(GMT_PRECISION *func,int nlon,int nlat,
   }
   free(array);
 }
+
+/* version for GMT > 4 */
+void gmt2myconvention_rotate(GMT_PRECISION *func,int nlon,int nlat,
+			     GMT_PRECISION factor, struct GMT_GRID *G)
+{
+  int i,j,warned=0,ij,ijm;
+  //float mean = 0;
+  for(j=0;j < nlon;j++){
+    for(i=0;i < nlat;i++){
+      ij = gmt_M_ijp (G->header, i, j); /* row, col */
+      //ijm = j*nlat+i;
+      ijm = j*nlat+nlat-1-i;		 /* convert from top down to
+					    bottom up */
+      func[ijm] =  G->data[ij] * factor; /* assign and scale */
+      //mean +=  G->data[ij];
+      if(!myfinite(func[ijm])){
+	func[ijm] = 0.0;
+	if(!warned){
+	  fprintf(stderr,"WARNING: at least one NaN entry in the data has been replaced with zero\n");
+	  warned=1;
+	}
+      }
+    }
+  }
+  //fprintf(stderr,"converted %i by %i data, mean: %11g\n",nlon,nlat,mean/(float)nlon*nlat);
+}
+
 void phelp(char *name)
 {
   fprintf(stderr,"\n%s [l_max, %i] [input mode, %1i] [integration mode, %i] [damping, %g]\n",

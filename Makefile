@@ -7,6 +7,21 @@
 ARCH=$(shell uname -m | awk '{print(tolower($$1))}')
 -include machine_dependent.$(ARCH).m
 
+#
+# these are settings for GMT version < 5
+#
+#GMT_VERSION_OPTION = -DUSE_GMT4
+#GMT_INC = -I$(GMTHOME)/include/ -I$(NETCDFDIR)/include 
+#GMT_LIB = -L$(GMHTOME)/lib -lgmt -lpsl
+#
+# these are for newer version
+#
+GMT_VERSION_OPTION =
+GMT_INC = -I/usr/local/include/gmt/ -I/usr/include/gdal/  -I$(NETCDFDIR)/include # gmt-config --cflags
+GMT_LIB = -L/usr/local/lib/ -lgmt # gmt-config --libes
+#
+#
+#
 #CFLAGS = -g -DDEBUG
 #FFLAGS = -g -DDEBUG
 #
@@ -21,7 +36,10 @@ ARCH=$(shell uname -m | awk '{print(tolower($$1))}')
 FORMATS =
 # options for the programs
 #
-OPTIONS = -DBE_VERBOSE 
+OPTIONS = -DBE_VERBOSE
+
+
+
 #
 SHELL = /bin/sh
 
@@ -31,7 +49,7 @@ ODIR = objects/$(ARCH)/
 # binaries
 BDIR = bin/$(ARCH)/
 #
-INCLUDES = -I$(GMTHOME)/include/ -I$(NETCDFDIR)/include
+INCLUDES = $(GMT_INC) -I$(NETCDFDIR)/include $(GMT_VERSION_OPTION)
 HFILES = abconvert.h   shana.h spear.h determine_coeff.h  precision.h  shsyn.h  shansyn.h auto_proto.h
 #	vectmath.h
 
@@ -59,11 +77,6 @@ ABMODEL_OBJ =   $(ODIR)/powercorr.o         $(ODIR)/write_coefficients.o      $(
                 $(ODIR)/determine_coeff.o   $(ODIR)/splinesc.o                $(ODIR)/splinesf.o \
 		$(ODIR)/spear.o 	    $(ODIR)/nr_utils.o  	      $(ODIR)/select_lms.o \
 		$(ODIR)/gsh_handling.o
-#
-# GMT routines
-#
-GMT_INCLUDES = -I$(NETCDFDIR)/include -I$(GMTHOME)/include/ 
-GMT_LIB = -L$(GMTHOME)/lib/. -lgmt -lpsl
 #
 # netcdf
 #
@@ -259,18 +272,18 @@ $(BDIR)/convert_she_model: $(ODIR)/convert_she_model.o $(ABMODEL_OBJ)
 #
 #
 $(ODIR)/shana.o: shana.c $(HFILES)
-	$(CC) -c $(CFLAGS) $(INCLUDES) $(LAPACK_DEFINE) $(GMT_INCLUDES) $(OPTIONS) $(FORMATS) shana.c -o $@
+	$(CC) -c $(CFLAGS) $(INCLUDES) $(LAPACK_DEFINE) $(GMT_INC) $(OPTIONS) $(FORMATS) shana.c -o $@
 
 
 $(ODIR)/shsyn.o: shsyn.c $(HFILES)
-	$(CC) -c $(CFLAGS) $(INCLUDES) $(GMT_INCLUDES) $(OPTIONS) $(FORMATS) shsyn.c -o $@
+	$(CC) -c $(CFLAGS) $(INCLUDES) $(GMT_INC) $(OPTIONS) $(FORMATS) shsyn.c -o $@
 
 $(ODIR)/shsyn-xsection.o: shsyn-xsection.c $(HFILES)
-	$(CC) -c $(CFLAGS) $(INCLUDES) $(GMT_INCLUDES) $(OPTIONS) $(FORMATS) shsyn-xsection.c -o $@
+	$(CC) -c $(CFLAGS) $(INCLUDES) $(GMT_INC) $(OPTIONS) $(FORMATS) shsyn-xsection.c -o $@
 
 
 $(ODIR)/test.o: test.c $(HFILES)
-	$(CC) -c $(CFLAGS) $(INCLUDES) $(GMT_INCLUDES) $(OPTIONS) $(FORMATS) test.c -o $@
+	$(CC) -c $(CFLAGS) $(INCLUDES) $(GMT_INC) $(OPTIONS) $(FORMATS) test.c -o $@
 
 
 $(ODIR)/plotlegendre.o: plotlegendre.c  $(HFILES)
@@ -364,10 +377,10 @@ $(ODIR)/dfour1_s.o: dfour1.c $(HFILES)
 	$(CC) -c dfour1.c $(CFLAGS) $(INCLUDES) -DSINGLE_PREC $(OPTIONS) $(FORMATS) -o $(ODIR)/dfour1_s.o
 
 $(ODIR)/mygrdio.o: mygrdio.c $(HFILES) 
-	$(CC) -c $(CFLAGS) $(INCLUDES) $(OPTIONS) $(FORMATS) $(GMT_INCLUDES) mygrdio.c -o $@
+	$(CC) -c $(CFLAGS) $(INCLUDES) $(OPTIONS) $(FORMATS) $(GMT_INC) mygrdio.c -o $@
 
 $(ODIR)/mygrdio_s.o: mygrdio.c $(HFILES)
-	$(CC) -c mygrdio.c $(CFLAGS) $(INCLUDES) $(GMT_INCLUDES) \
+	$(CC) -c mygrdio.c $(CFLAGS) $(INCLUDES) $(GMT_INC) \
 	-DSINGLE_PREC $(OPTIONS) $(FORMATS) -o $(ODIR)/mygrdio_s.o
 
 $(ODIR)/nr_utils.o: nr_utils.c $(HFILES)
@@ -383,16 +396,16 @@ $(ODIR)/gauleg_s.o: gauleg.c $(HFILES)
 	$(CC) -c gauleg.c $(CFLAGS) $(INCLUDES) -DSINGLE_PREC $(OPTIONS) $(FORMATS) -o $(ODIR)/gauleg_s.o
 
 $(ODIR)/spline.o: spline.c $(HFILES)
-	$(CC) -c $(CFLAGS) $(INCLUDES) $(OPTIONS) $(GMT_INCLUDES) $(FORMATS) spline.c -o $@
+	$(CC) -c $(CFLAGS) $(INCLUDES) $(OPTIONS) $(GMT_INC) $(FORMATS) spline.c -o $@
 
 $(ODIR)/spline_s.o: spline.c $(HFILES)
-	$(CC) -c spline.c $(CFLAGS) $(INCLUDES) $(GMT_INCLUDES)  -DSINGLE_PREC $(OPTIONS) $(FORMATS) -o $(ODIR)/spline_s.o
+	$(CC) -c spline.c $(CFLAGS) $(INCLUDES) $(GMT_INC)  -DSINGLE_PREC $(OPTIONS) $(FORMATS) -o $(ODIR)/spline_s.o
 
 $(ODIR)/spear.o: spear.c $(HFILES)
-	$(CC) -c $(CFLAGS) $(INCLUDES) $(OPTIONS) $(GMT_INCLUDES) $(FORMATS) spear.c -o $@
+	$(CC) -c $(CFLAGS) $(INCLUDES) $(OPTIONS) $(GMT_INC) $(FORMATS) spear.c -o $@
 
 $(ODIR)/spear_s.o: spear.c $(HFILES)
-	$(CC) -c spear.c $(CFLAGS) $(INCLUDES) $(GMT_INCLUDES)  -DSINGLE_PREC $(OPTIONS) $(FORMATS) -o $(ODIR)/spear_s.o
+	$(CC) -c spear.c $(CFLAGS) $(INCLUDES) $(GMT_INC)  -DSINGLE_PREC $(OPTIONS) $(FORMATS) -o $(ODIR)/spear_s.o
 
 $(ODIR)/interpolate_she_model.o: interpolate_she_model.c $(HFILES)
 	$(CC) -c $(CFLAGS) $(INCLUDES) $(OPTIONS) $(FORMATS) interpolate_she_model.c -o $@

@@ -14,7 +14,16 @@
 #include <malloc.h>
 #include <string.h>
 #include <math.h>
+
+
+
+#ifdef USE_GMT4
 #include "gmt.h"
+#else
+#include "gmt_dev.h"
+//#include "gmt_private.h"
+#endif
+
 #include "precision.h"
 
 struct mod{

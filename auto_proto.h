@@ -20,7 +20,6 @@ double norm_chebev_der_int(double, double, int);
 /* convert_she_model.c */
 /* cradialcorr.c */
 /* determine_coeff.c */
-void write_nonzero_coefficients(COMP_PRECISION **,COMP_PRECISION **,int,COMP_PRECISION ,int ,FILE *, int );
 void determine_coeff(double *, int, double *, double *, int, double, double, double, double, double *, double *, double *, double (*)(double, double, double *, int, double), double (*)(int, int, int));
 void svd_solver(double *, double *, double *, int, int);
 void svd_driver(double *, int, int, double *, double *);
@@ -61,13 +60,13 @@ void myrealloc_dp(float **, int);
 void myrealloc_cp(double **, int);
 void zero_cp(double *, int);
 void zero_dp(float *, int);
-/* model2scatter.c */
 /* mod_modelbase.c */
 void fit_base_functions(double, double, double *, double *, struct mod *, double (*)(double, double, double *, int, double), double (*)(int, int, int));
+/* model2scatter.c */
 /* modmodellmax.c */
 /* mygrdio.c */
-void grid_output(int, char *, float *, int, int, double, double, double, double, double, double, int, char **, int, unsigned short);
-void my_gmt_write_grd(float *, unsigned short, int, char **, char *, int, int, double, double, double, double, double, double);
+void grid_output(int, char *, float *, int, int, double, double, double, double, double, double, int, char **, int, unsigned short, void *);
+void my_gmt_write_grd(float *, unsigned short, int, char **, char *, int, int, double, double, double, double, double, double, void *);
 /* myopen.c */
 FILE *myopen(char *, char *);
 FILE *myopen_wn(char *, char *, char *);
@@ -122,12 +121,12 @@ double calc_total_power(double *, double *, int);
 double calc_total_power_gsh(double *, double *, double *, double *, int);
 /* rand.c */
 double ran1(long *);
-/* readflt.c */
 /* read_she_model.c */
 void read_she_model(char *, struct mod *, int, int, int);
 void allocate_model_coefficients(struct mod *);
 void deallocate_model_coefficients(struct mod *);
 void copy_model_par(struct mod *, struct mod *);
+/* readflt.c */
 /* scale_model.c */
 /* select_lms.c */
 void select_lms(int, int, int *, int *, int *);
@@ -138,7 +137,8 @@ int aij(int, int, int, int, int);
 double interpolate(double *, float *, double, int);
 float dist_rad(float *, int, int);
 void check_opmode(char *, int *, char *, int *, int *);
-void gmt2myconvention_rotate(float *, int, int, float);
+void gmt2myconvention_rotate4(float *, int, int, float);
+void gmt2myconvention_rotate(float *, int, int, float, struct GMT_GRID *);
 void phelp(char *);
 void minmax(float *, float *, float *, float *, int);
 void field_message(float, float, float, float, float, float, int, int, float, float, float, char *);
@@ -159,7 +159,6 @@ double betacf(double, double, double);
 /* sphex_lin_reg.c */
 void sphex_lin_reg(double *, double *, double *, double *, double *, double *, int, int, int, double *);
 /* spline.c */
-void spline(double *, double *, int, double, double, double *);
 void splint(double *, double *, double *, int, double, float *);
 double *vector(long, long);
 void free_vector(double *, long, long);

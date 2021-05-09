@@ -5,7 +5,7 @@
 #                                                                              #
 #  for license and copyrights, see the file COPYRIGHT.                         #
 #                                                                              #
-#    Copyright (C) 1999 - 2016  Thorsten W. Becker                             #
+#    Copyright (C) 1999 - 2021  Thorsten W. Becker                             #
 #                               twb@ig.utexas.edu                              #
 #                                                                              #
 #                     ---- Third party additions ---                           #
@@ -107,6 +107,15 @@ include machine_dependent.$(ARCH).m
 to suit your local settings and compiler flags. I.e. modify
 machine_dependent.$ARCH.m and not the makefile itself.
 
+
+GMT VERSIONS
+
+To compile against GMT version < 5, define USE_GMT4 as described in the Makefile
+
+
+COMPILER FLAGS
+
+
 There are comments in the example files given, refer to them for
 further instructions. Successful compilations have been reported under
 LINUX, Mac OS-X, IRIX, and Solaris.
@@ -153,6 +162,13 @@ LINUX, Mac OS-X, IRIX, and Solaris.
       export FTRN_LIB=-lgfortran
       export MATHLIBS="-llapack -lblas" 
   fi
+
+
+None of the compiler flags are special, but note that the .F files use
+C style reprocessor directives, and those need to be enabled, for
+gfortran by using
+
+-x f77-cpp-input
 
 
 - compilation with "make"

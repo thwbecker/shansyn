@@ -38,6 +38,7 @@ int main(int argc, char **argv )
   GMT_PRECISION *gmtval;
   char grdfilename[200]="";
   FILE *out;
+  void *API;   
 #ifdef BE_VERBOSE
   verbose=TRUE;
 #else 
@@ -158,8 +159,15 @@ int main(int argc, char **argv )
     }
   }
   if(out_mode==ONE_GRD || out_mode==TWO_GRDS ||
-     out_mode==GRADIENT)
+     out_mode==GRADIENT){
+#ifdef USE_GMT4
     GMT_begin (argc, argv);
+#else
+    API = GMT_Create_Session (argv[0], 2U, 0, NULL);
+#endif
+
+  }
+
   /* 
      read in the maximum order of expansion 
   */
@@ -496,7 +504,7 @@ int main(int argc, char **argv )
       }
       grid_output(out_mode,grdfilename,gmtval,nlon,nlat,
 		  xmin,xmax,ymin,ymax,dx,dy,
-		  argc,argv,lmax,verbose);
+		  argc,argv,lmax,verbose,API);
       break;
     }
     default:{
@@ -695,7 +703,7 @@ int main(int argc, char **argv )
 	fprintf(stderr,"\n");
       free(tmparr);free(ap);free(bp);
       grid_output(out_mode,grdfilename,gmtval,nlon1,nlat,xmin,xmax+wrap_around*dx,
-		  ymin,ymax,dx,dy,argc,argv,lmax,verbose);
+		  ymin,ymax,dx,dy,argc,argv,lmax,verbose,API);
       free(gmtval);
       break;
     }// end binary stdout and one_grd
@@ -775,11 +783,11 @@ int main(int argc, char **argv )
       my_gmt_write_grd(gmtval, verbose, argc,argv,
 		       FIRST_VEL_OUT, nlon1,nlat, 
 		       xmin, xmax+dx*wrap_around,
-		       ymin, ymax, dx,  dy);
+		       ymin, ymax, dx,  dy,API);
       my_gmt_write_grd((gmtval+nlon1*nlat), verbose, argc,argv,
 		       SECOND_VEL_OUT, nlon1,nlat, xmin, 
 		       xmax+dx*wrap_around,
-		       ymin, ymax, dx,  dy);
+		       ymin, ymax, dx,  dy,API);
       free(gmtval);
       break;
     }// end vector field out
@@ -859,12 +867,12 @@ int main(int argc, char **argv )
       my_gmt_write_grd(gmtval, verbose, argc,argv,
 		       FIRST_VEL_OUT, nlon1,nlat, 
 		       xmin, xmax+dx*wrap_around,
-		       ymin, ymax, dx,  dy);
+		       ymin, ymax, dx,  dy,API);
       my_gmt_write_grd((gmtval+nlon1*nlat), verbose,
 		       argc,argv,
 		       SECOND_VEL_OUT, nlon1,nlat, 
 		       xmin, xmax+dx*wrap_around,
-		       ymin, ymax, dx,  dy);
+		       ymin, ymax, dx,  dy,API);
       free(gmtval);
       break;
     }
@@ -886,8 +894,13 @@ int main(int argc, char **argv )
   if(verbose)
     fprintf(stderr,"%s: Done.\n",argv[0]);
   if(out_mode==ONE_GRD || out_mode==TWO_GRDS ||
-     out_mode==GRADIENT)
+     out_mode==GRADIENT){
+#ifdef USE_GMT4
     GMT_end (argc, argv);
+#else
+    GMT_Destroy_Session (API);
+#endif
+  }
   return 0;
 }
 
