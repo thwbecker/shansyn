@@ -1978,6 +1978,7 @@ void gmt2myconvention_rotate4(GMT_PRECISION *func,int nlon,int nlat,
   free(array);
 }
 
+#ifndef USE_GMT4
 /* version for GMT > 4 */
 void gmt2myconvention_rotate(GMT_PRECISION *func,int nlon,int nlat,
 			     GMT_PRECISION factor, struct GMT_GRID *G)
@@ -2003,6 +2004,7 @@ void gmt2myconvention_rotate(GMT_PRECISION *func,int nlon,int nlat,
   }
   //fprintf(stderr,"converted %i by %i data, mean: %11g\n",nlon,nlat,mean/(float)nlon*nlat);
 }
+#endif
 
 void phelp(char *name)
 {

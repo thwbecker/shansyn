@@ -12,13 +12,18 @@ ARCH=$(shell uname -m | awk '{print(tolower($$1))}')
 #
 #GMT_VERSION_OPTION = -DUSE_GMT4
 #GMT_INC = -I$(GMTHOME)/include/ -I$(NETCDFDIR)/include 
-#GMT_LIB = -L$(GMHTOME)/lib -lgmt -lpsl
+#GMT_LIB = -L$(GMTHOME)/lib -lgmt -lpsl
+#
+# netcdf
+#
+#NETCDF_LIB = -L$(NETCDFDIR)/lib/ -lnetcdf
 #
 # these are for newer version
 #
 GMT_VERSION_OPTION =
-GMT_INC = -I/usr/local/include/gmt/ -I/usr/include/gdal/  -I$(NETCDFDIR)/include # gmt-config --cflags
+GMT_INC = -I/usr/local/include/gmt/ -I/usr/include/gdal/  #-I$(NETCDFDIR)/include # gmt-config --cflags
 GMT_LIB = -L/usr/local/lib/ -lgmt # gmt-config --libes
+NETCDF_LIB = -L/usr/lib64/mpich/lib/ -lnetcdf
 #
 #
 #
@@ -37,8 +42,6 @@ FORMATS =
 # options for the programs
 #
 OPTIONS = -DBE_VERBOSE
-
-
 
 #
 SHELL = /bin/sh
@@ -77,10 +80,7 @@ ABMODEL_OBJ =   $(ODIR)/powercorr.o         $(ODIR)/write_coefficients.o      $(
                 $(ODIR)/determine_coeff.o   $(ODIR)/splinesc.o                $(ODIR)/splinesf.o \
 		$(ODIR)/spear.o 	    $(ODIR)/nr_utils.o  	      $(ODIR)/select_lms.o \
 		$(ODIR)/gsh_handling.o
-#
-# netcdf
-#
-NETCDF_LIB = -L$(NETCDFDIR)/lib/ -lnetcdf
+
 #
 # double precision binaries
 PROGRAMS = $(BDIR)/shana $(BDIR)/shsyn $(BDIR)/plotlegendre $(BDIR)/abconvert $(BDIR)/cmodellinreg \
