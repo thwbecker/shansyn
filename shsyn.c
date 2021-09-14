@@ -988,7 +988,7 @@ void read_ab(COMP_PRECISION *ap, COMP_PRECISION *bp,
     for(l=0;l<=lmax && l<5;l++){
       fprintf(stderr,"%s: ",mainname);
       for(i=0;i<nr_of_coeff_sets;i++){
-	tmp_pow=degree_power((ap+i*lmsize),(bp+i*lmsize),l);
+	tmp_pow=degree_power((ap+i*lmsize),(bp+i*lmsize),l,TRUE);
 	total_power[i] += tmp_pow;
 	fprintf(stderr,"set:%3i l:%4i pow^2:%10g ",i+1,l,tmp_pow);
       }
@@ -997,7 +997,7 @@ void read_ab(COMP_PRECISION *ap, COMP_PRECISION *bp,
     for(l=5;l<=lmax;l++)
       for(i=0;i<nr_of_coeff_sets;i++)
 	total_power[i] += 
-	  degree_power((ap+i*lmsize),(bp+i*lmsize),l);
+	  degree_power((ap+i*lmsize),(bp+i*lmsize),l,TRUE);
     for(i=0;i<nr_of_coeff_sets;i++)
       fprintf(stderr,"%s: set %i: total power^2 per lmax: %20g\n",
 	      mainname,i+1,

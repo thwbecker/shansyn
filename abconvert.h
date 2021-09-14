@@ -51,7 +51,8 @@
 #define SPEAR_CORRL_OUT 22
 #define SPEAR_CORRT_OUT 23
 #define SPEAR_CORRTH_OUT 24
-
+#define ABPHYS_NONZERO_OUT_ONE_COLUMN 25
+#define POWER_OUT_NN 26
 /* 
    taper switches 
 */

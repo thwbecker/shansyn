@@ -13,8 +13,8 @@
 int main(int argc, char **argv)
 {
  
-  int mode,i,j,lmsize1,lmsize2,cmode,lmax_min;
-  COMP_PRECISION *a1,*a2,*b1,*b2,zmin,zmax,dz,z1,z2,tmp[3],rdist,dmode,z,r,dr,a;
+  int mode,i,cmode,lmax_min;
+  COMP_PRECISION zmin,zmax,dz,z1,z2,tmp[3],rdist,dmode;
   struct mod model[2],out_model[2];
   int expect_gsh = 0;
   zmin=0;

@@ -8,6 +8,10 @@
 #include "shana.h"
 int finite(double );		/* why doesn't this get included with math.h? */
 #define myfinite(x) (finite((double)(x)))
+
+void spline(COMP_PRECISION *,COMP_PRECISION *,
+	    int ,COMP_PRECISION  ,COMP_PRECISION ,
+	    COMP_PRECISION *);
 /* 
    
    shana
@@ -50,18 +54,19 @@ int finite(double );		/* why doesn't this get included with math.h? */
 int main(int argc, char *argv[] )
 {
   int lmax,lmc,lmax1,lmsize,nlon,nlat,i,j,opmode,nrp=0,intmode,verbose=BE_VERBOSE,flip=0,pixelreg,
-    calculate_derivatives,vectors,nlontimesnlat,os1,os2,ret_code;
+    calculate_derivatives,vectors,nlontimesnlat,os1,os2;
   DATA_PRECISION *func=NULL,avg,min,max,*cloc,minphi,maxphi,
     mintheta,maxtheta,dtheta=0.,dphi=0.,*tmp;
   COMP_PRECISION damping,theta,phi;
   double tmpd;
   char *filename;
 #ifdef USE_GMT4
+  int ret_code;
   struct GRD_HEADER *header;
   GMT_LONG dummy[4]={0,0,0,0};
   header=(struct GRD_HEADER *)calloc(1,sizeof(struct GRD_HEADER));
-#else  /* new GMT API */
   double wesn[6];
+#else  /* new GMT API */
   void *API;                        /* The API control structure */
   struct GMT_GRID *G = NULL;        /* Structure to hold output grid */
   struct GMT_GRID_HEADER *header = NULL;

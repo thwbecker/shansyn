@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-  COMP_PRECISION z,**a,**b,dz,zmin,zmax,tmp;
+  COMP_PRECISION z,dz,zmin,zmax,tmp;
   int lmax,steps,use_r2_weighting,nexp=1,extrapolate=1,i;
   struct mod *model,*out_model;
 #ifndef SHANA_EXPECT_GSH

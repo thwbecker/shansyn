@@ -13,8 +13,8 @@
 int main(int argc, char **argv)
 {
  
-  int mode,i,j,lmsize,cmode;
-  COMP_PRECISION zmin,zmax,dz,z1,z2,tmp[3],rdist,dmode,z,r,dr,a;
+  int mode,i,j,cmode;
+  COMP_PRECISION zmin,zmax,dz,z1,z2,tmp[3],rdist=0,dmode,z,r,dr,a;
   struct mod model[1],out_model[2];
   int layers[2]={0,0};
   int lmin = 0;

@@ -8,7 +8,8 @@ void write_nonzero_coefficients(COMP_PRECISION **a,
 				COMP_PRECISION **b,int lmax,
 				COMP_PRECISION sfac,
 				int print_lmax,
-				FILE *out, int nexp)
+				FILE *out, int nexp,
+				int one_column)
 {
   int l,m,i,os;
   if(print_lmax == 1)		/* short format */
@@ -23,8 +24,14 @@ void write_nonzero_coefficients(COMP_PRECISION **a,
 	for(i=0;i < nexp;i++)
 	  fprintf(out,ASCII_DATA_FORMAT,*(a[i]+os));
       }else{
-	for(i=0;i < nexp;i++)
-	  fprintf(out,COEFF_DATA_FORMAT,*(a[i]+os),*(b[i]+os));
+	for(i=0;i < nexp;i++){
+	  if(one_column){
+	    fprintf(out,ASCII_DATA_FORMAT,*(a[i]+os));fprintf(out,"\n");
+	    fprintf(out,ASCII_DATA_FORMAT,*(b[i]+os));
+	  }else{
+	    fprintf(out,COEFF_DATA_FORMAT,*(a[i]+os),*(b[i]+os));
+	  }
+	}
       }
       fprintf(out,"\n");
     }
@@ -94,7 +101,7 @@ void write_vector_coefficients(COMP_PRECISION **amp,
 void write_model(struct mod *model,COMP_PRECISION fac,
 		 int nexp,FILE *out)
 {
-  int i,j;
+  int i;
 
 
   switch(model[0].radial_type){

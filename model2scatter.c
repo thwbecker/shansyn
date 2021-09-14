@@ -9,7 +9,7 @@
 int main(int argc, char **argv)
 {
  
-  int i,lmax,lmsize,l,m,weighted=0;
+  int i,lmax,l,m,weighted=0;
   COMP_PRECISION dz,zmin,zmax,z,r,w;
   struct mod model[2];
   struct mod out_model[2];

@@ -126,25 +126,28 @@ COMP_PRECISION calc_rms_model(struct mod *model,int lmax,
   return rms; 
 }
 
-/* power per degree */
-COMP_PRECISION degree_power_model(struct mod *model,int l,int layer)
+/* 
+   power per degree and unit area
+   (with and wihtout normalization)
+*/
+COMP_PRECISION degree_power_model(struct mod *model,int l,int layer,BOOLEAN normalize_by_ncoeff)
 {
   COMP_PRECISION power;
   switch(model->vector_field){	/* scalar */
   case 0:
-    power = degree_power(model->a[layer],model->b[layer],l);
+    power = degree_power(model->a[layer],model->b[layer],l,normalize_by_ncoeff);
     break;
   case 1:
      /* vector field using P + T, should
 	really do differently
      */
-      power = degree_power(model->amp[layer],model->bmp[layer],l) + 
-	degree_power(model->amt[layer],model->bmt[layer],l);
+      power = degree_power(model->amp[layer],model->bmp[layer],l,normalize_by_ncoeff) + 
+	degree_power(model->amt[layer],model->bmt[layer],l,normalize_by_ncoeff);
       break;
   case 2:
     /* GSH */
     power = degree_power_gsh(model->amp[layer],model->amt[layer],
-			     model->bmp[layer],model->bmt[layer],l);
+			     model->bmp[layer],model->bmt[layer],l,normalize_by_ncoeff);
     break;
   default:
     fprintf(stderr,"vector field type %i not implemented for out mode\n",
@@ -158,17 +161,14 @@ COMP_PRECISION degree_power_model(struct mod *model,int l,int layer)
 
 /*
 
-calculates power per degree and unit area,
-normalized by the 2l+1 entries
+calculates power per degree and unit area, normalized by the 2l+1
+entries
 
 (note: this is in units of value^2, i.e. take sqrt later
 
 */
-
-
-
 COMP_PRECISION degree_power(COMP_PRECISION *a,
-			    COMP_PRECISION *b, int l)
+			    COMP_PRECISION *b, int l,BOOLEAN normalize_by_ncoeff)
 {
   COMP_PRECISION tmp;
   int m,nfac,os;
@@ -180,8 +180,10 @@ COMP_PRECISION degree_power(COMP_PRECISION *a,
     tmp += SQUARE(a[os]);
     tmp += SQUARE(b[os]);
   }
-  nfac = 2*l + 1;
-  tmp /= (COMP_PRECISION)nfac;
+  if(normalize_by_ncoeff){
+    nfac = 2*l + 1;		/* number of coefficients */
+    tmp /= (COMP_PRECISION)nfac;
+  }
   return tmp;
 }
 
@@ -195,7 +197,7 @@ COMP_PRECISION degree_power_gsh(COMP_PRECISION *ar,
 				COMP_PRECISION *ai,
 				COMP_PRECISION *br,
 				COMP_PRECISION *bi,
-				int l)
+				int l,BOOLEAN normalize_by_ncoeff)
 {
   COMP_PRECISION tmp;
   int m,os,nfac;
@@ -208,8 +210,10 @@ COMP_PRECISION degree_power_gsh(COMP_PRECISION *ar,
     tmp += SQUARE(ar[os]) + SQUARE(ai[os]);
     tmp += SQUARE(br[os]) + SQUARE(bi[os]);
   }
-  nfac = 4*l+2;
-  tmp /= (COMP_PRECISION)nfac;
+  if(normalize_by_ncoeff){
+    nfac = 4*l+2;
+    tmp /= (COMP_PRECISION)nfac;
+  }
   return tmp;
 }
 
@@ -413,7 +417,7 @@ COMP_PRECISION calc_rms(COMP_PRECISION *a, COMP_PRECISION *b,
   COMP_PRECISION rms;
   rms=0.0;
   for(l=1;l<=lmax;l++)
-    rms += ((COMP_PRECISION)(2*l+1))*degree_power(a,b,l);
+    rms += degree_power(a,b,l,FALSE);
   return(sqrt(rms)/TWO_SQRT_PI);
 }
 /*
@@ -429,8 +433,7 @@ COMP_PRECISION calc_rms_gsh(COMP_PRECISION *ar,
   rms=0.0;
   for(l=1;l<=lmax;l++){		/* this is OK, we're summing over zero
 				   terms */
-    rms += ((COMP_PRECISION)(4*l+2))*
-      degree_power_gsh(ar,ai,br,bi,l);
+    rms += degree_power_gsh(ar,ai,br,bi,l,FALSE);
   }
   return(sqrt(rms)/TWO_SQRT_PI);
 }
@@ -445,7 +448,7 @@ COMP_PRECISION calc_total_power(COMP_PRECISION *a,
   COMP_PRECISION rms;
   rms=0.0;
   for(l=0;l<=lmax;l++)
-    rms += ((COMP_PRECISION)(2*l+1))*degree_power(a,b,l);
+    rms += degree_power(a,b,l,FALSE);
   return(sqrt(rms)/TWO_SQRT_PI);
 }
 
@@ -462,8 +465,7 @@ COMP_PRECISION calc_total_power_gsh(COMP_PRECISION *ar,
   COMP_PRECISION rms;
   rms=0.0;
   for(l=0;l<=lmax;l++)
-    rms += ((COMP_PRECISION)(4*l+2))*
-      degree_power_gsh(ar,ai,br,bi,l);
+    rms += degree_power_gsh(ar,ai,br,bi,l,FALSE);
   return(sqrt(rms)/TWO_SQRT_PI);
 }
 

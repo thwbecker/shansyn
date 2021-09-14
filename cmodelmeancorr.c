@@ -14,7 +14,7 @@ int main(int argc, char **argv)
  
   int lmax,l,steps,cmode,i;
   COMP_PRECISION dz,zmin,zmax,z,z1,z2,
-    *am,*bm,rms[2],deltaz;
+    rms[2],deltaz;
   struct mod model[2],out_model[2];
   
   int expect_gsh = 0;

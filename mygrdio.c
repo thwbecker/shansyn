@@ -96,8 +96,6 @@ void my_gmt_write_grd(float *phival, BOOLEAN verbose,
   par[0] = nlon;par[1] = nlat;
   wesn[0] = xmin;wesn[1] = xmax;wesn[2] = ymin; wesn[3] = ymax;wesn[4]=wesn[5]=0;
 
-  
-
   G = GMT_Create_Data (API, GMT_IS_GRID, GMT_IS_SURFACE,GMT_CONTAINER_AND_DATA,
 		       par,wesn,inc,GMT_GRID_NODE_REG,pad,NULL);
   if(!G){

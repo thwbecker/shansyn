@@ -18,7 +18,7 @@ int main(int argc, char **argv)
   COMP_PRECISION dz,zmin,zmax,z,*rs,tmpd,
     weight,ws;
   struct mod model[1],out_model[1];
-
+  BOOLEAN normalize_by_ncoeff = TRUE;
 #ifndef SHANA_EXPECT_GSH
   int expect_gsh = 0 ;
 #else
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
     
     // \sigma^2_l
     for(l=0;l <= model->lmax;l++){
-      tmpd = degree_power_model(out_model,l,0);
+      tmpd = degree_power_model(out_model,l,0,normalize_by_ncoeff);
       fprintf(stdout,"%12.5e ",tmpd);
       rs[l+2] += tmpd*weight;
     }

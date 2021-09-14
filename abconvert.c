@@ -10,6 +10,8 @@
 */
 #include "abconvert.h"
 
+void write_nonzero_coefficients(COMP_PRECISION **,COMP_PRECISION **,int,COMP_PRECISION,int ,FILE *, int ,int );
+
 
 int main(int argc, char *argv[] )
 {
@@ -18,6 +20,7 @@ int main(int argc, char *argv[] )
     vector_field=0,lmin = 0,nset,shps,cmode,
     use_second = 0,os1,ialpha=-1,icoeff=0,izero=0,iread,
     interpolate_mode = 0,use_correlation;
+  BOOLEAN normalize_power_by_ncoeff = TRUE;
   long seed;
   COMP_PRECISION *a=NULL,*b=NULL,tmp,amplitudefactor,
     *filter=NULL,rf1,rf2,dp,atmp,btmp,*amt=NULL,*amp=NULL,
@@ -1260,6 +1263,7 @@ int main(int argc, char *argv[] )
       }
       break;
     }
+    case ABPHYS_NONZERO_OUT_ONE_COLUMN:
     case ABPHYS_NONZERO_OUT:{
       if(vector_field){
 	fprintf(stderr,"%s: error physical/DT convention AB format output, but vector_field %i input\n",
@@ -1268,7 +1272,7 @@ int main(int argc, char *argv[] )
       }
       if(verbose)
 	fprintf(stderr,"%s: physical convention AB-nonzero format output, lmax=%i\n",argv[0],lmax);
-      write_nonzero_coefficients(&a,&b,lmax,1.0,TRUE,stdout,1);
+      write_nonzero_coefficients(&a,&b,lmax,1.0,TRUE,stdout,1,(out_format==ABPHYS_NONZERO_OUT_ONE_COLUMN));
       break;
     }
     case ABGEOD_OUT:{
@@ -1287,13 +1291,19 @@ int main(int argc, char *argv[] )
 	}
       break;
     }
-    case POWER_OUT:{ 
+    case POWER_OUT:
+    case POWER_OUT_NN:{
+      if(out_format == POWER_OUT_NN){
+	normalize_power_by_ncoeff=FALSE;
+	fprintf(stderr,"%s: not using number of coefficient normalization for power\n",argv[0]);
+      }else
+	normalize_power_by_ncoeff=TRUE;
       if(!vector_field){
 	if(verbose)
 	  fprintf(stderr,"%s: output: l power_per_degree_per_unit_area, lmax=%i\n",
 		  argv[0],lmax);
 	for(l=0;l<=lmax;l++)
-	  fprintf(stdout,"%i %21.14e\n",l,degree_power(a,b,l));
+	  fprintf(stdout,"%i %21.14e\n",l,degree_power(a,b,l,normalize_power_by_ncoeff));
       }else{
 	if(vector_field == 1){
 	  if(verbose)
@@ -1301,7 +1311,7 @@ int main(int argc, char *argv[] )
 		    argv[0],lmax);
 	  for(l=0;l<=lmax;l++)
 	    fprintf(stdout,"%i %21.14e %21.14e\n",
-		    l,degree_power(amp,bmp,l),degree_power(amt,bmt,l));
+		    l,degree_power(amp,bmp,l,normalize_power_by_ncoeff),degree_power(amt,bmt,l,normalize_power_by_ncoeff));
 	}else{			/* power for GSH  */
 
 	  if(verbose)
@@ -1309,7 +1319,7 @@ int main(int argc, char *argv[] )
 		    argv[0],lmax);
 	  for(l=0;l<=lmax;l++)
 	    fprintf(stdout,"%i %21.14e\n",
-		    l,degree_power_gsh(amp,amt,bmp,bmt,l));
+		    l,degree_power_gsh(amp,amt,bmp,bmt,l,normalize_power_by_ncoeff));
 	}
       }
       break;
@@ -1872,6 +1882,7 @@ void phelp(char *name)
   
   fprintf(stderr,"\t                 %i: AB format, geodetic norm. (NASA conv.)\n\n",ABGEOD_OUT);
   fprintf(stderr,"\t                 %i: power per unit area and degree, as in DT\n",POWER_OUT);
+  fprintf(stderr,"\t                 %i: power per degree, nor normalizing by number of coeff.\n",POWER_OUT_NN);
   fprintf(stderr,"\t                 %i: RMS of expansion (no mean, l=0, terms) \n",TRMS_OUT);
   fprintf(stderr,"\t                 %i: mean of expansion (scaled l=0 term) \n",MEAN_OUT);
   fprintf(stderr,"\t                 %i: total power or magnitude of expansion (include l=0 term)\n\n",
@@ -1911,8 +1922,8 @@ void phelp(char *name)
   fprintf(stderr,"\t                 %i: vector field, A_p B_p A_t B_t format (phys./DT norm), new format for HC\n",
 	  VECABAB_NEW_OUT);
   fprintf(stderr,"\t                 %i: GSH format, BW normalization\n",GSH_OUT);
-  fprintf(stderr,"\t                 %i: AB format, physical norm. (Dahlen & Tromp conv.) skip B term for m=0\n\n",
-	  ABPHYS_NONZERO_OUT);
+  fprintf(stderr,"\t                 %i: AB format, physical norm. (Dahlen & Tromp conv.) skip B term for m=0\n",ABPHYS_NONZERO_OUT);
+  fprintf(stderr,"\t                 %i: \t same, use one column instead of two entries per line\n\n",ABPHYS_NONZERO_OUT_ONE_COLUMN);
   fprintf(stderr,"\t  tapering:      %i:  no tapering, l'=l/l_{max}\n",NO_TAPER);
   fprintf(stderr,"\t                 %i:  cos(-pi/2*l')**2  tapering for l' >= lc \n",COSSQR_TAPER);
   fprintf(stderr,"\t                 %i:  cos(-pi/2*l')**4  tapering for l' >= lc \n",COSP4_TAPER);

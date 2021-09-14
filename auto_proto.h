@@ -60,9 +60,9 @@ void myrealloc_dp(float **, int);
 void myrealloc_cp(double **, int);
 void zero_cp(double *, int);
 void zero_dp(float *, int);
+/* model2scatter.c */
 /* mod_modelbase.c */
 void fit_base_functions(double, double, double *, double *, struct mod *, double (*)(double, double, double *, int, double), double (*)(int, int, int));
-/* model2scatter.c */
 /* modmodellmax.c */
 /* mygrdio.c */
 void grid_output(int, char *, float *, int, int, double, double, double, double, double, double, int, char **, int, unsigned short, void *);
@@ -106,9 +106,9 @@ void pdtheta_lgndr(double *, int, double *, double *, int, double *, int);
 double calc_correlation_model(struct mod *, int, int, int, int, int *);
 double calc_total_power_model(struct mod *, int, int);
 double calc_rms_model(struct mod *, int, int);
-double degree_power_model(struct mod *, int, int);
-double degree_power(double *, double *, int);
-double degree_power_gsh(double *, double *, double *, double *, int);
+double degree_power_model(struct mod *, int, int, unsigned short);
+double degree_power(double *, double *, int, unsigned short);
+double degree_power_gsh(double *, double *, double *, double *, int, unsigned short);
 double correlation_gsh(double *, double *, double *, double *, double *, double *, double *, double *, int, int, int, int, int);
 void add_to_xy(double **, double **, int *, double, double);
 double correlation(double *, double *, double *, double *, int, int, int, int);
@@ -121,12 +121,12 @@ double calc_total_power(double *, double *, int);
 double calc_total_power_gsh(double *, double *, double *, double *, int);
 /* rand.c */
 double ran1(long *);
+/* readflt.c */
 /* read_she_model.c */
 void read_she_model(char *, struct mod *, int, int, int);
 void allocate_model_coefficients(struct mod *);
 void deallocate_model_coefficients(struct mod *);
 void copy_model_par(struct mod *, struct mod *);
-/* readflt.c */
 /* scale_model.c */
 /* select_lms.c */
 void select_lms(int, int, int *, int *, int *);

@@ -166,8 +166,8 @@ void mean_model(struct mod *out_model,struct mod *model,
 		COMP_PRECISION z1, COMP_PRECISION z2,
 		int steps,int use_r2_weights)
 {
-  COMP_PRECISION *a,*b,dz,z,r,w,ws=0.;
-  int i,l,m,lmsize,j=0,iread;
+  COMP_PRECISION dz,z,r,w,ws=0.;
+  int l,m,j=0;
   struct mod int_model[1];
   /* make room for temp model */
   copy_model_par(model,int_model);
