@@ -17,10 +17,15 @@ int main(int argc, char *argv[] )
 {
   int lmax,lmax1,l,m,tapering,out_format,lmsize,in_format,j,lstart,
     md,llmax,layers=0,i,verbose=VERBOSE,highp = -1,
-    vector_field=0,lmin = 0,nset,shps,cmode,
-    use_second = 0,os1,ialpha=-1,icoeff=0,izero=0,iread,
-    interpolate_mode = 0,use_correlation;
-  BOOLEAN normalize_power_by_ncoeff = TRUE;
+    vector_field=0,lmin = 0,nset,shps,
+    os1,ialpha=-1,icoeff=0,izero=0,iread;
+  int cmode = 0;
+  BOOLEAN normalize_power_by_ncoeff = TRUE,
+    use_two_files=FALSE,
+    interpolate_mode = FALSE,
+    use_correlation=FALSE,
+    use_admittance=FALSE,
+    use_second = FALSE;
   long seed;
   COMP_PRECISION *a=NULL,*b=NULL,tmp,amplitudefactor,
     *filter=NULL,rf1,rf2,dp,atmp,btmp,*amt=NULL,*amp=NULL,
@@ -89,16 +94,15 @@ int main(int argc, char *argv[] )
 
   */
   if((in_format == INTERPOLATE) || (in_format == INTERPOLATE_ABAB) || (in_format == INTERPOLATE_GSH))
-    interpolate_mode = 1;
+    interpolate_mode = TRUE;
   else
-    interpolate_mode = 0;
+    interpolate_mode = FALSE;
   
  
   /* 
-     decide if we need correlations, and which ones
+     decide if we need correlations, and which ones, or if we compute admittance 
 
   */
-  
   switch(out_format){
   case CORRL_OUT:
   case CORRTH_OUT:
@@ -112,10 +116,11 @@ int main(int argc, char *argv[] )
     use_correlation = TRUE;
     cmode = 2;
     break;
-
+  case ADMITTANCE_OUT:
+  case ADMITTANCE_OUT_NN:
+    use_admittance = TRUE;
+    break;
   default:
-    use_correlation = FALSE;
-    cmode = 0;
     break;
   }
 
@@ -552,7 +557,7 @@ int main(int argc, char *argv[] )
     }
     /* 
 
-       done with first file input. now check for second
+       done with first file/expansion input. now check for second expansion
     
 
     */
@@ -564,13 +569,13 @@ int main(int argc, char *argv[] )
     
 
     */
-    if(use_correlation || interpolate_mode){
+    if(use_correlation || interpolate_mode || use_admittance){
       /* 
 
 	 input or output format needs a second file
 
       */
-      use_second = 1;
+      use_second = TRUE;
       if(verbose){
 	if(interpolate_mode){
 	  switch(in_format){
@@ -588,8 +593,13 @@ int main(int argc, char *argv[] )
 	    exit(-1);
 	  }
 	}else{
-	  fprintf(stderr,"%s: second file for correlation coefficient, lmax=%i\n",
-		  argv[0],lmax);
+	  if(use_admittance)
+	    fprintf(stderr,"%s: second file for admittance, lmax=%i\n",
+		    argv[0],lmax);
+
+	  else
+	    fprintf(stderr,"%s: second file for correlation coefficient, lmax=%i\n",
+		    argv[0],lmax);
 	}
       }
       if(fscanf(stdin,"%i",&i) != 1){ /* second lmax */
@@ -623,6 +633,8 @@ int main(int argc, char *argv[] )
 	//
 	// read in second scalar expansion
 	//
+	/* this is kinda bad and should be standardized with first
+	   expansion read */
 	if((c=(COMP_PRECISION *)calloc(lmsize,sizeof(COMP_PRECISION)))==NULL ||
 	   (d=(COMP_PRECISION *)calloc(lmsize,sizeof(COMP_PRECISION)))==NULL){
 	  if(verbose)fprintf(stderr,"%s: memerror, lmax=%i lmsize=%i\n",argv[0],lmax,lmsize); 
@@ -1295,7 +1307,9 @@ int main(int argc, char *argv[] )
     case POWER_OUT_NN:{
       if(out_format == POWER_OUT_NN){
 	normalize_power_by_ncoeff=FALSE;
-	fprintf(stderr,"%s: not using number of coefficient normalization for power\n",argv[0]);
+	if(verbose)
+	  fprintf(stderr,"%s: not using number of coefficient normalization for power\n",
+		  argv[0]);
       }else
 	normalize_power_by_ncoeff=TRUE;
       if(!vector_field){
@@ -1508,6 +1522,30 @@ int main(int argc, char *argv[] )
       }
       break;
     }
+    case ADMITTANCE_OUT_NN:
+    case ADMITTANCE_OUT:{
+      if(vector_field){
+	fprintf(stderr,"%s: admittance not implemented for vector field\n",argv[0]);
+	exit(-1);
+      }
+      if(verbose)fprintf(stderr,"%s: computing admittance power(S1,S2)/power(S2), lmax=%i\n",
+			 argv[0],lmax);
+      if(out_format == ADMITTANCE_OUT_NN){
+	normalize_power_by_ncoeff = FALSE;
+	if(verbose)
+	  fprintf(stderr,"%s: not normalizing by number of coefficients\n",argv[0]);
+      }else{
+	normalize_power_by_ncoeff = TRUE;
+      }
+      for(l=1;l <= lmax;l++){
+	tmp = admittance(a,b,c,d,l,normalize_power_by_ncoeff);
+	if(finite(tmp))
+	  fprintf(stdout,"%5i %20.10lf\n",l,tmp);
+	else
+	  fprintf(stdout,"%5i         nan\n",l);
+      }
+      break;
+    }
     case SPEAR_CORRL_OUT:
     case CORRL_OUT:{ 
       /* 
@@ -1544,6 +1582,7 @@ int main(int argc, char *argv[] )
       }
       break;
     }
+      /* hmmm, why?  */
     case CCL_COUPLING:{
       if(verbose){fprintf(stderr,"%s: cross l coupling\n",argv[0]);}
       switch(vector_field){
@@ -1881,8 +1920,8 @@ void phelp(char *name)
 	  ABPHYS_OUT_LONG);
   
   fprintf(stderr,"\t                 %i: AB format, geodetic norm. (NASA conv.)\n\n",ABGEOD_OUT);
-  fprintf(stderr,"\t                 %i: power per unit area and degree, as in DT\n",POWER_OUT);
-  fprintf(stderr,"\t                 %i: power per degree, nor normalizing by number of coeff.\n",POWER_OUT_NN);
+  fprintf(stderr,"\t                 %i: power per unit area and degree, as in DT (delta = flat)\n",POWER_OUT);
+  fprintf(stderr,"\t                 %i: power per degree, -not- normalizing by number of coeff.\n",POWER_OUT_NN);
   fprintf(stderr,"\t                 %i: RMS of expansion (no mean, l=0, terms) \n",TRMS_OUT);
   fprintf(stderr,"\t                 %i: mean of expansion (scaled l=0 term) \n",MEAN_OUT);
   fprintf(stderr,"\t                 %i: total power or magnitude of expansion (include l=0 term)\n\n",
@@ -1905,7 +1944,10 @@ void phelp(char *name)
   fprintf(stderr,"\t                 %i: total correlation coefficient, \n",SPEAR_CORRT_OUT);
   fprintf(stderr,"\t                     using two input files in AB or GSH format (ranked, Spear)\n");
   fprintf(stderr,"\t                 %i: total correlation coefficient, \n",SPEAR_CORRTH_OUT);
-  fprintf(stderr,"\t                     but restricted from md to lmax (ranked, Spear)\n");
+  fprintf(stderr,"\t                     but restricted from md to lmax (ranked, Spear)\n\n");
+
+  fprintf(stderr,"\t                 %i: admittance - power(C1,C2)/power(C2,C2)\n",ADMITTANCE_OUT);
+  fprintf(stderr,"\t                 %i: admittance - not normalizing power by numbers of coefficients\n\n",ADMITTANCE_OUT_NN);
   
   fprintf(stderr,"\t                 %i: cross degree correlation within one expansion (linear, Pearson)\n\n",CCL_COUPLING);
 
