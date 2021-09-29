@@ -170,23 +170,44 @@ entries
 COMP_PRECISION degree_power(COMP_PRECISION *a,
 			    COMP_PRECISION *b, int l,BOOLEAN normalize_by_ncoeff)
 {
+  return degree_cross_power(a,b,a,b,l,normalize_by_ncoeff);
+}
+/* 
+   cross power 
+*/
+COMP_PRECISION degree_cross_power(COMP_PRECISION *a,COMP_PRECISION *b,
+				  COMP_PRECISION *c,COMP_PRECISION *d,
+				  int l,BOOLEAN normalize_by_ncoeff)
+{
+
   COMP_PRECISION tmp;
   int m,nfac,os;
   // m=0
-  tmp = SQUARE(a[POSLM(l, 0)]);
+  tmp = a[POSLM(l, 0)] * c[POSLM(l, 0)];
   // 1<=m<=l
   for(m=1;m<=l;m++){
     os = POSLM(l, m);
-    tmp += SQUARE(a[os]);
-    tmp += SQUARE(b[os]);
+    tmp += a[os] * c[os];
+    tmp += b[os] * d[os];
   }
   if(normalize_by_ncoeff){
     nfac = 2*l + 1;		/* number of coefficients */
     tmp /= (COMP_PRECISION)nfac;
   }
   return tmp;
-}
 
+}
+/* admittance cross power(S1,S2)/power(S2) */
+COMP_PRECISION admittance(COMP_PRECISION *a,COMP_PRECISION *b,
+			  COMP_PRECISION *c,COMP_PRECISION *d,
+			  int l,BOOLEAN normalize_by_ncoeff)
+{
+  COMP_PRECISION cp,p2;
+  cp = degree_cross_power(a,b,c,d,l,normalize_by_ncoeff); /* cross power */
+  p2 = degree_cross_power(c,d,c,d,l,normalize_by_ncoeff); /* power second */
+  return cp/p2;
+
+}
 /*
   
   calculates power per degree and unit area for real/imaginary coeffs
@@ -216,6 +237,7 @@ COMP_PRECISION degree_power_gsh(COMP_PRECISION *ar,
   }
   return tmp;
 }
+
 
 /*
 
@@ -368,6 +390,7 @@ COMP_PRECISION correlation_pt(COMP_PRECISION *ap, COMP_PRECISION *bp, /* first f
   return(corr);
 }
 
+/* not sure now anymore what this was for? */
 COMP_PRECISION ccl_correlation(COMP_PRECISION *a, COMP_PRECISION *b,
 			       int l,int lmax, int *dof,int cmode)
 {

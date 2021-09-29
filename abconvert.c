@@ -1314,8 +1314,14 @@ int main(int argc, char *argv[] )
 	normalize_power_by_ncoeff=TRUE;
       if(!vector_field){
 	if(verbose)
-	  fprintf(stderr,"%s: output: l power_per_degree_per_unit_area, lmax=%i\n",
-		  argv[0],lmax);
+	  if(out_format == POWER_OUT_NN)
+	    fprintf(stderr,"%s: output: l power_per_degree, lmax=%i\n",
+		    argv[0],lmax);
+	  else
+	    fprintf(stderr,"%s: output: l power_per_degree_per_unit_area, lmax=%i\n",
+		    argv[0],lmax);
+
+	    
 	for(l=0;l<=lmax;l++)
 	  fprintf(stdout,"%i %21.14e\n",l,degree_power(a,b,l,normalize_power_by_ncoeff));
       }else{
