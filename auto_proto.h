@@ -108,6 +108,8 @@ double calc_total_power_model(struct mod *, int, int);
 double calc_rms_model(struct mod *, int, int);
 double degree_power_model(struct mod *, int, int, unsigned short);
 double degree_power(double *, double *, int, unsigned short);
+double degree_cross_power(double *, double *, double *,double *,int, unsigned short);
+double admittance(double *, double *, double *,double *,int, unsigned short);
 double degree_power_gsh(double *, double *, double *, double *, int, unsigned short);
 double correlation_gsh(double *, double *, double *, double *, double *, double *, double *, double *, int, int, int, int, int);
 void add_to_xy(double **, double **, int *, double, double);

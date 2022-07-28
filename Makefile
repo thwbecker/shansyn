@@ -11,19 +11,22 @@ ARCH=$(shell uname -m | awk '{print(tolower($$1))}')
 # these are settings for GMT version < 5
 #
 #GMT_VERSION_OPTION = -DUSE_GMT4
-#GMT_INC = -I$(GMTHOME)/include/ -I$(NETCDFDIR)/include 
-#GMT_LIB = -L$(GMTHOME)/lib -lgmt -lpsl
-#
-# netcdf
-#
-#NETCDF_LIB = -L$(NETCDFDIR)/lib/ -lnetcdf
+#GMT_INC = -I$(GMT4HOME)/include/ -I$(NETCDFDIR)/include 
+#GMT_LIB = -L$(GMT4HOME)/lib -lgmt -lpsl
 #
 # these are for newer version
 #
 GMT_VERSION_OPTION =
 GMT_INC = -I/usr/local/include/gmt/ -I/usr/include/gdal/  #-I$(NETCDFDIR)/include # gmt-config --cflags
 GMT_LIB = -L/usr/local/lib/ -lgmt # gmt-config --libes
-NETCDF_LIB = -L/usr/lib64/mpich/lib/ -lnetcdf
+#
+# netcdf should work with both
+#
+NETCDF_LIB = -L$(NETCDFDIR)/lib/ -lnetcdf
+#NETCDF_LIB = -L/usr/lib64/mpich/lib/ -lnetcdf
+
+#
+
 #
 #
 #
