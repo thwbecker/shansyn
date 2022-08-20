@@ -901,6 +901,15 @@ int main(int argc, char *argv[] )
 	fprintf(stderr,"%s: compute Laplacian\n",argv[0]);
 	break;
       }
+      case DIVERGENCE:{
+	fprintf(stderr,"%s: compute divergence, switching to pol out\n",argv[0]);
+	if(!vector_field){
+	  fprintf(stderr,"%s: ERROR: need vector field input\n",argv[0]);
+	  exit(-1);
+	}
+	out_format = VECABAB_POL_OUT;
+	break;
+      }
       case PHI_ROTATE:{
 	fprintf(stderr,"%s: rotating field by %g degrees eastward\n",
 		argv[0],amplitudefactor);
@@ -1313,14 +1322,14 @@ int main(int argc, char *argv[] )
       }else
 	normalize_power_by_ncoeff=TRUE;
       if(!vector_field){
-	if(verbose)
+	if(verbose){
 	  if(out_format == POWER_OUT_NN)
 	    fprintf(stderr,"%s: output: l power_per_degree, lmax=%i\n",
 		    argv[0],lmax);
 	  else
 	    fprintf(stderr,"%s: output: l power_per_degree_per_unit_area, lmax=%i\n",
 		    argv[0],lmax);
-
+	}
 	    
 	for(l=0;l<=lmax;l++)
 	  fprintf(stdout,"%i %21.14e\n",l,degree_power(a,b,l,normalize_power_by_ncoeff));
@@ -1345,7 +1354,7 @@ int main(int argc, char *argv[] )
       break;
     }
     case MEAN_OUT:{
-      if(vector_field == 1){
+      if(vector_field){
 	fprintf(stderr,"%s: mean output undefined for vector fields\n",argv[0]);
 	exit(-1);
       }else{
@@ -1889,6 +1898,10 @@ void taperf(COMP_PRECISION *fac,
       fac[0] = fac[1] = -((COMP_PRECISION)l*((COMP_PRECISION)l+1.0));
       break;
     }  
+    case DIVERGENCE:{		/* divergence of pol/tor field */
+      fac[0] = fac[1] = -sqrt(((COMP_PRECISION)l*((COMP_PRECISION)l+1.0)));
+      break;
+    }  
     case FROM_SH_FILE_TAPER:{
       fac[0] = af[POSLM(l,m)];
       fac[1] = bf[POSLM(l,m)];
@@ -1990,6 +2003,7 @@ void phelp(char *name)
   fprintf(stderr,"\t                 %i:  only m=0 terms are passed\n\n",ONLY_M0_TERMS);
   
   fprintf(stderr,"\t                 %i:  compute Laplacian (multiply with - l(l+1))\n\n",LAPLACIAN);
+  fprintf(stderr,"\t                 %i:  compute divergence of PT field (multiply pol with - sqrt(l(l+1)))\n\n",DIVERGENCE);
 
   fprintf(stderr,"\t                 %i:  read in w_0 ... w_{l_{max}} weights from file \"%s\"\n",
 	  FROM_FILE_TAPER,FILTER_FILE);
