@@ -26,7 +26,7 @@ int main(int argc, char **argv )
 {
   int lmax,i,j,l,m,nlon,nlon1,wrap_around,
     nlat,sum_mode,out_mode,rsize,lmax1,nn=0,os1,
-    lmsize,rslmsize,nnt2,nnt4,m2,j2,
+    lmsize,rslmsize,nnt2,nnt4,m2,j2,rc,
     writeparameterfile=WPF,nr_of_coeff_sets;
   COMP_PRECISION a,b,dx,dy,dtheta,thetamin,thetamax,
     dincx,dincy,*y,min,max,avg,*r,xmin,xmax,
@@ -171,7 +171,11 @@ int main(int argc, char **argv )
   /* 
      read in the maximum order of expansion 
   */
-  fscanf(IN_FILE,"%i",&lmax);  
+  rc=fscanf(IN_FILE,"%i",&lmax);
+  if(!rc){
+    fprintf(stderr,"%s: header read error\n",argv[0]);
+    exit(-1);
+  }
   if(lmax<0){ 
     phelp(argv[0]);
     exit(-1);

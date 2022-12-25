@@ -61,6 +61,8 @@ void write_coefficients(COMP_PRECISION **a,
       fprintf(out,"\n");
     }
 }
+#define HSTR_SIZE 200
+
 void write_vector_coefficients(COMP_PRECISION **amp,
 			       COMP_PRECISION **amt,
 			       COMP_PRECISION **bmp,
@@ -71,13 +73,16 @@ void write_vector_coefficients(COMP_PRECISION **amp,
 			       FILE *out, int nexp)
 {
   int l,m,i,os;
-  char sout[200];
+  char sout[HSTR_SIZE+1],buffer[HSTR_SIZE+1];
   /* make the output string */
   for(i=0;i<4;i++)
-    if(i==0)
+    if(i==0){
       sprintf(sout,"%s",ASCII_DATA_FORMAT);
-    else
-      sprintf(sout,"%s %s",sout,ASCII_DATA_FORMAT);
+    }
+    else{
+      sprintf(buffer,"%s %s",sout,ASCII_DATA_FORMAT);
+      strncpy(sout,buffer,HSTR_SIZE);
+    }
   
   /* print a header? */
   if(print_lmax == 1)

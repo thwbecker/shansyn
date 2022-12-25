@@ -84,6 +84,8 @@
 #define EXP_TAPER 19
 #define HIGHP_TAPER 20
 #define ONLY_M0_TERMS 21
+#define DIVERGENCE 22
+#define VORTICITY 23
 /* 
    input switches 
 */

@@ -135,8 +135,9 @@ void linreg_fitexy(COMP_PRECISION *x,COMP_PRECISION *y,
   ang[5]=ang[2];
   ang[6]=POTN;
   for (j=4;j<=6;j++) ch[j]=chixy(ang[j]);
-  mnbrak(&ang[1],&ang[2],&ang[3],&ch[1],&ch[2],&ch[3],chixy);
-  *chi2=brent(ang[1],ang[2],ang[3],chixy,ACC,b);
+  mnbrak(&ang[1],&ang[2],&ang[3],&ch[1],&ch[2],&ch[3],
+	 (COMP_PRECISION (*)())chixy);
+  *chi2=brent(ang[1],ang[2],ang[3],(COMP_PRECISION (*)())chixy,ACC,b);
   *chi2=chixy(*b);
   *a=aa;
   *q=gammq(0.5*(nn-2),*chi2*0.5);
@@ -160,9 +161,9 @@ void linreg_fitexy(COMP_PRECISION *x,COMP_PRECISION *y,
     }
   }
   if (bmx < BIG) {
-    bmx=zbrent(chixy,*b,*b+bmx,ACC)-(*b);
+    bmx=zbrent((COMP_PRECISION (*)())chixy,*b,*b+bmx,ACC)-(*b);
     amx=aa-(*a);
-    bmn=zbrent(chixy,*b,*b-bmn,ACC)-(*b);
+    bmn=zbrent((COMP_PRECISION (*)())chixy,*b,*b-bmn,ACC)-(*b);
     amn=aa-(*a);
     tmpd = cos(*b);
     *sigb=sqrt(0.5*(bmx*bmx+bmn*bmn))/(scale*SQUARE(tmpd));

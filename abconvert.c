@@ -16,12 +16,11 @@ void write_nonzero_coefficients(COMP_PRECISION **,COMP_PRECISION **,int,COMP_PRE
 int main(int argc, char *argv[] )
 {
   int lmax,lmax1,l,m,tapering,out_format,lmsize,in_format,j,lstart,
-    md,llmax,layers=0,i,verbose=VERBOSE,highp = -1,
+    md,llmax,layers=0,i,verbose=VERBOSE,highp = -1,rc,
     vector_field=0,lmin = 0,nset,shps,
     os1,ialpha=-1,icoeff=0,izero=0,iread;
   int cmode = 0;
   BOOLEAN normalize_power_by_ncoeff = TRUE,
-    use_two_files=FALSE,
     interpolate_mode = FALSE,
     use_correlation=FALSE,
     use_admittance=FALSE,
@@ -156,7 +155,7 @@ int main(int argc, char *argv[] )
 	fprintf(stderr,"%s: reading A B format in physical convention%s lmax: %i\n",
 		argv[0],(in_format == AB_INPUT_HC)?(", long hc format,"):(","),lmax);
       if(in_format == AB_INPUT_HC){
-	fscanf(stdin,"%*i %*lf %i %i %*i",&nset,&shps);
+	rc=fscanf(stdin,"%*i %*lf %i %i %*i",&nset,&shps);
 	if((nset != 1)||(shps!=1)){
 	  fprintf(stderr,"%s: error with long (hc) format: nset: %i shps: %i\n",
 		  argv[0],nset,shps);
@@ -217,9 +216,10 @@ int main(int argc, char *argv[] )
 	if(verbose)
 	  fprintf(stderr,"%s: data file has %i layers, reading only layer 1\n",
 		  argv[0],layers);
-      for(m=0;m<layers;m++) 
-	fscanf(stdin,"%*g");
-      fscanf(stdin,"%*i %*g");
+      for(rc=m=0;m<layers;m++) {
+	rc+=fscanf(stdin,"%*g");
+      }
+      rc=fscanf(stdin,"%*i %*g");
       for(l=0;l<=lmax;l++)
 	for(m=0;m<=l;m++){
 	  os1=POSLM(l, m);
@@ -494,7 +494,7 @@ int main(int argc, char *argv[] )
 	 
 
       */
-      fscanf(stdin,"%i",&ialpha); /* read type flag
+      rc=fscanf(stdin,"%i",&ialpha); /* read type flag
 				     0: scalar, 2: twophi, 4: four phi
 				  */
       fprintf(stderr,"%s: reading lmax = %i GSH, BW normalization, %i type ... ",
@@ -608,7 +608,7 @@ int main(int argc, char *argv[] )
 	exit(-1);
       }
       if(in_format == AB_INPUT_HC){
-	fscanf(stdin,"%*i %*lf %i %i %*i",&nset,&shps);
+	rc = fscanf(stdin,"%*i %*lf %i %i %*i",&nset,&shps);
 	if((nset != 1)||(shps!=1)){
 	  fprintf(stderr,"%s: error with long (hc) format: nset: %i shps: %i\n",
 		  argv[0],nset,shps);
@@ -621,7 +621,7 @@ int main(int argc, char *argv[] )
       }
       if((in_format == GSH_INPUT)||(in_format == INTERPOLATE_GSH)){ 
 	/* gsh format */
-	fscanf(stdin,"%i",&j);
+	rc = fscanf(stdin,"%i",&j);
 	if(j != ialpha){
 	  if(verbose)fprintf(stderr,"%s: gsh second ialpha=%i (0/2/4 types) not equal to first file ialphs=%i\n\n",
 			     argv[0],j,ialpha);
@@ -908,6 +908,15 @@ int main(int argc, char *argv[] )
 	  exit(-1);
 	}
 	out_format = VECABAB_POL_OUT;
+	break;
+      }
+      case VORTICITY:{
+       fprintf(stderr,"%s: compute |vorticity|, switching to tor out\n",argv[0]);
+	if(!vector_field){
+	  fprintf(stderr,"%s: ERROR: need vector field input\n",argv[0]);
+	  exit(-1);
+	}
+	out_format = VECABAB_TOR_OUT;
 	break;
       }
       case PHI_ROTATE:{
@@ -1898,6 +1907,7 @@ void taperf(COMP_PRECISION *fac,
       fac[0] = fac[1] = -((COMP_PRECISION)l*((COMP_PRECISION)l+1.0));
       break;
     }  
+    case VORTICITY:
     case DIVERGENCE:{		/* divergence of pol/tor field */
       fac[0] = fac[1] = -sqrt(((COMP_PRECISION)l*((COMP_PRECISION)l+1.0)));
       break;
@@ -2003,7 +2013,8 @@ void phelp(char *name)
   fprintf(stderr,"\t                 %i:  only m=0 terms are passed\n\n",ONLY_M0_TERMS);
   
   fprintf(stderr,"\t                 %i:  compute Laplacian (multiply with - l(l+1))\n\n",LAPLACIAN);
-  fprintf(stderr,"\t                 %i:  compute divergence of PT field (multiply pol with - sqrt(l(l+1)))\n\n",DIVERGENCE);
+  fprintf(stderr,"\t                 %i:  compute divergence of PT field (multiply pol with - sqrt(l(l+1)))\n",DIVERGENCE);
+  fprintf(stderr,"\t                 %i:  compute |vorticity| of PT field (multiply tor with - sqrt(l(l+1)??))\n\n",VORTICITY);
 
   fprintf(stderr,"\t                 %i:  read in w_0 ... w_{l_{max}} weights from file \"%s\"\n",
 	  FROM_FILE_TAPER,FILTER_FILE);

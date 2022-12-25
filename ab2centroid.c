@@ -6,14 +6,18 @@
 int main(int argc, char **argv)
 {
   COMP_PRECISION phi,theta,*a,*b,area;
-  int lmsize,l,m,lmax;
+  int lmsize,l,m,lmax,rc;
   if(argc!=1){
     fprintf(stderr,"%s: reads in spherical harmonic expansion of 1/0 field and returns area and centroid coordinates\n\tto stdout\n",
 	    argv[0]);
     fprintf(stderr,"\tinput is in physical normalization, output is area (4pi is max) lon lat in degrees\n");
     exit(-1);
   }  
-  fscanf(stdin,"%i",&lmax);
+  rc = fscanf(stdin,"%i",&lmax);
+  if(!rc){
+    fprintf(stderr,"%s: read error header\n",argv[0]);
+    exit(-1);
+  }
   lmsize= (int)((((float)lmax)+1.0)*(((float)lmax)+2)/2.0);
   if((a=(COMP_PRECISION *)calloc(lmsize,sizeof(COMP_PRECISION)))==NULL ||
      (b=(COMP_PRECISION *)calloc(lmsize,sizeof(COMP_PRECISION)))==NULL){

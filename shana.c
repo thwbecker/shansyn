@@ -54,7 +54,7 @@ void spline(COMP_PRECISION *,COMP_PRECISION *,
 int main(int argc, char *argv[] )
 {
   int lmax,lmc,lmax1,lmsize,nlon,nlat,i,j,opmode,nrp=0,intmode,verbose=BE_VERBOSE,flip=0,pixelreg,
-    calculate_derivatives,vectors,nlontimesnlat,os1,os2;
+    calculate_derivatives,vectors,nlontimesnlat,os1,os2,rc;
   DATA_PRECISION *func=NULL,avg,min,max,*cloc,minphi,maxphi,
     mintheta,maxtheta,dtheta=0.,dphi=0.,*tmp;
   COMP_PRECISION damping,theta,phi;
@@ -159,12 +159,12 @@ int main(int argc, char *argv[] )
     */
   case BLOCK:{
     if(verbose)fprintf(stderr,"%s: expecting binary block on offset (grid) coordinates\n",argv[0]);
-    fread(&nlat,sizeof(int),1,stdin);
-    fread(&nlon,sizeof(int),1,stdin);
+    rc =fread(&nlat,sizeof(int),1,stdin);
+    rc+=fread(&nlon,sizeof(int),1,stdin);
     if(verbose)fprintf(stderr,"%s: read dimensions expecting nlon:%i times nlat:%i values\n",
 		       argv[0],nlon,nlat);
     myrealloc_dp(&func,(nlontimesnlat=nlon*nlat));zero_dp(func,nlontimesnlat);
-    fread(func,sizeof(DATA_PRECISION)*nlontimesnlat,1,stdin);
+    rc+=fread(func,sizeof(DATA_PRECISION)*nlontimesnlat,1,stdin);
     minmax(&min,&max,&avg,func,nlontimesnlat);
     //
     // this are the expected input data coordinates
