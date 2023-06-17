@@ -19,6 +19,7 @@
    normalization */
 
 #define GEODETIC_FACTOR(l, m) ((TWO_SQRT_PI)*pow(-1.0,(COMP_PRECISION)(-m)))
+
 #define RICK_PRE_F (4.0*SQUARE(PI))
 #define RICK_FACTOR(l, m) (RICK_PRE_F/pow(-1.0,(COMP_PRECISION)(m)))
 #define RICK_SCALAR_FACTOR(l, m) (pow(-1.0,(COMP_PRECISION)(-m))*2.0*SQRT_TWO_PI)

@@ -20,7 +20,8 @@ int main(int argc, char *argv[] )
     vector_field=0,lmin = 0,nset,shps,
     os1,ialpha=-1,icoeff=0,izero=0,iread;
   int cmode = 0;
-  BOOLEAN normalize_power_by_ncoeff = TRUE,
+  BOOLEAN normalize_power_by_ncoeff = TRUE, /* default is power per
+					       degree and unit area */
     interpolate_mode = FALSE,
     use_correlation=FALSE,
     use_admittance=FALSE,
@@ -1326,10 +1327,11 @@ int main(int argc, char *argv[] )
       if(out_format == POWER_OUT_NN){
 	normalize_power_by_ncoeff=FALSE;
 	if(verbose)
-	  fprintf(stderr,"%s: not using number of coefficient normalization for power\n",
+	  fprintf(stderr,"%s: not using number of coefficient normalization for power (i.e. not per area)\n",
 		  argv[0]);
-      }else
+      }else{
 	normalize_power_by_ncoeff=TRUE;
+      }
       if(!vector_field){
 	if(verbose){
 	  if(out_format == POWER_OUT_NN)
@@ -1347,17 +1349,20 @@ int main(int argc, char *argv[] )
 	  if(verbose)
 	    fprintf(stderr,"%s: output: l pwr/degree/unit_area|_pol  pwr/degree/unit_area|_tor, lmax=%i\n",
 		    argv[0],lmax);
-	  for(l=0;l<=lmax;l++)
+	  for(l=0;l<=lmax;l++){
 	    fprintf(stdout,"%i %21.14e %21.14e\n",
-		    l,degree_power(amp,bmp,l,normalize_power_by_ncoeff),degree_power(amt,bmt,l,normalize_power_by_ncoeff));
+		    l,degree_power(amp,bmp,l,normalize_power_by_ncoeff),
+		    degree_power(amt,bmt,l,normalize_power_by_ncoeff));
+	  }
 	}else{			/* power for GSH  */
 
 	  if(verbose)
 	    fprintf(stderr,"%s: output: l GSH pwr/degree/unit_area , lmax=%i\n",
 		    argv[0],lmax);
-	  for(l=0;l<=lmax;l++)
+	  for(l=0;l<=lmax;l++){
 	    fprintf(stdout,"%i %21.14e\n",
 		    l,degree_power_gsh(amp,amt,bmp,bmt,l,normalize_power_by_ncoeff));
+	  }
 	}
       }
       break;

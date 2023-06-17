@@ -168,7 +168,8 @@ entries
 
 */
 COMP_PRECISION degree_power(COMP_PRECISION *a,
-			    COMP_PRECISION *b, int l,BOOLEAN normalize_by_ncoeff)
+			    COMP_PRECISION *b, int l,
+			    BOOLEAN normalize_by_ncoeff)
 {
   return degree_cross_power(a,b,a,b,l,normalize_by_ncoeff);
 }
@@ -315,6 +316,24 @@ void add_to_xy(COMP_PRECISION **x, COMP_PRECISION **y,
   *(*y + (*n)) = yval;
   *n = n1;
 }
+
+void add_to_xy_float(COMP_PRECISION **x, COMP_PRECISION **y, 
+		     int *n, float xval, float yval)
+{
+  int n1;
+  n1 = (*n) + 1;
+  if(((*x = (COMP_PRECISION *)realloc(*x,sizeof(COMP_PRECISION)*n1))==NULL)||
+     ((*y = (COMP_PRECISION *)realloc(*y,sizeof(COMP_PRECISION)*n1))==NULL)){
+    fprintf(stderr,"add_to_xy: memory error\n");
+    exit(-1);
+  }
+  *(*x + (*n)) = (COMP_PRECISION)xval;
+  *(*y + (*n)) = (COMP_PRECISION)yval;
+  *n = n1;
+}
+
+
+
 /*
 
 calculate linear correlation coefficient between two model

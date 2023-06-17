@@ -468,7 +468,7 @@ int main(int argc, char *argv[] )
       
 #else
       if((G = GMT_Read_Data(API, GMT_IS_GRID, GMT_IS_FILE, GMT_IS_SURFACE, GMT_CONTAINER_ONLY, NULL, (filename + STRING_LENGTH), NULL))==NULL)
-       return (-1);
+	return (-1);
       header = G->header;
       if(SIGNIFICANTLY_DIFFERENT(header->wesn[XLO], PHI2LONGITUDE(minphi)) ||
 	 SIGNIFICANTLY_DIFFERENT(header->wesn[YLO], THETA2LATITUDE(mintheta)) ||
@@ -704,7 +704,7 @@ void calc_coeff(DATA_PRECISION **func,int lmax,
       }
       /*
 
-	 get the A matrix, fortran style, and use sigma
+	get the A matrix, fortran style, and use sigma
 
       */
       make_a(lmax,lmsize,nrp,&aflt,cloc,verbose,
@@ -817,7 +817,7 @@ void calc_coeff(DATA_PRECISION **func,int lmax,
     /* 
        END LEAST SQUARES
        
-     */
+    */
   }else{
     /* 
        
@@ -1637,8 +1637,8 @@ void calc_coeff(DATA_PRECISION **func,int lmax,
    asize[2] = n * m
 
    damping mode: 0: no damping
-                 1: norm damping constant set to damping
-		 2: l/L scaled
+   1: norm damping constant set to damping
+   2: l/L scaled
 
    sigma is a weighting function
 		 

@@ -113,6 +113,7 @@ double admittance(double *, double *, double *,double *,int, unsigned short);
 double degree_power_gsh(double *, double *, double *, double *, int, unsigned short);
 double correlation_gsh(double *, double *, double *, double *, double *, double *, double *, double *, int, int, int, int, int);
 void add_to_xy(double **, double **, int *, double, double);
+void add_to_xy_float(COMP_PRECISION **, COMP_PRECISION **, int *, float , float );
 double correlation(double *, double *, double *, double *, int, int, int, int);
 double correlation_pt(double *, double *, double *, double *, double *, double *, double *, double *, int, int, int, int);
 double ccl_correlation(double *, double *, int, int, int *, int);

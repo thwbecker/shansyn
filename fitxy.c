@@ -96,7 +96,9 @@ COMP_PRECISION *xx,*yy,*sx,*sy,*ww,aa,offs;
 
 #define POTN 1.571000
 #define BIG 1.0e30
+#ifndef PI
 #define PI 3.14159265358979324
+#endif
 #define ACC 1.0e-4
 
 
