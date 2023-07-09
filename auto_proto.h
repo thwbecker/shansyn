@@ -4,6 +4,8 @@
 /* abconvert.c */
 void taperf(double *, int, int, double, int, int, double *, double *, double *, double);
 void phelp(char *);
+/* calc_pt_corr.c */
+int read_gz_line(gzFile *, char **);
 /* calc_radial_corr.c */
 /* chebyshev.c */
 double chebev(double, double, double *, int, double);
@@ -60,13 +62,13 @@ void myrealloc_dp(float **, int);
 void myrealloc_cp(double **, int);
 void zero_cp(double *, int);
 void zero_dp(float *, int);
-/* model2scatter.c */
 /* mod_modelbase.c */
 void fit_base_functions(double, double, double *, double *, struct mod *, double (*)(double, double, double *, int, double), double (*)(int, int, int));
+/* model2scatter.c */
 /* modmodellmax.c */
 /* mygrdio.c */
-void grid_output(int, char *, float *, int, int, double, double, double, double, double, double, int, char **, int, unsigned short, void *);
-void my_gmt_write_grd(float *, unsigned short, int, char **, char *, int, int, double, double, double, double, double, double, void *);
+void grid_output(int, char *, float *, int, int, double, double, double, double, double, double, int, char **, int, unsigned short, void **);
+void my_gmt_write_grd(float *, unsigned short, int, char **, char *, int, int, double, double, double, double, double, double, void **);
 /* myopen.c */
 FILE *myopen(char *, char *);
 FILE *myopen_wn(char *, char *, char *);
@@ -108,12 +110,12 @@ double calc_total_power_model(struct mod *, int, int);
 double calc_rms_model(struct mod *, int, int);
 double degree_power_model(struct mod *, int, int, unsigned short);
 double degree_power(double *, double *, int, unsigned short);
-double degree_cross_power(double *, double *, double *,double *,int, unsigned short);
-double admittance(double *, double *, double *,double *,int, unsigned short);
+double degree_cross_power(double *, double *, double *, double *, int, unsigned short);
+double admittance(double *, double *, double *, double *, int, unsigned short);
 double degree_power_gsh(double *, double *, double *, double *, int, unsigned short);
 double correlation_gsh(double *, double *, double *, double *, double *, double *, double *, double *, int, int, int, int, int);
 void add_to_xy(double **, double **, int *, double, double);
-void add_to_xy_float(COMP_PRECISION **, COMP_PRECISION **, int *, float , float );
+void add_to_xy_float(double **, double **, int *, float, float);
 double correlation(double *, double *, double *, double *, int, int, int, int);
 double correlation_pt(double *, double *, double *, double *, double *, double *, double *, double *, int, int, int, int);
 double ccl_correlation(double *, double *, int, int, int *, int);
@@ -124,12 +126,12 @@ double calc_total_power(double *, double *, int);
 double calc_total_power_gsh(double *, double *, double *, double *, int);
 /* rand.c */
 double ran1(long *);
-/* readflt.c */
 /* read_she_model.c */
 void read_she_model(char *, struct mod *, int, int, int);
 void allocate_model_coefficients(struct mod *);
 void deallocate_model_coefficients(struct mod *);
 void copy_model_par(struct mod *, struct mod *);
+/* readflt.c */
 /* scale_model.c */
 /* select_lms.c */
 void select_lms(int, int, int *, int *, int *);
@@ -160,7 +162,8 @@ double erfcc(double);
 double betai(double, double, double);
 double betacf(double, double, double);
 /* sphex_lin_reg.c */
-void sphex_lin_reg(double *, double *, double *, double *, double *, double *, int, int, int, double *);
+void sphex_lin_reg(double *,double *,double *, double *,double *,
+		   double *,int ,int ,int ,double *);
 /* spline.c */
 void splint(double *, double *, double *, int, double, float *);
 double *vector(long, long);

@@ -13,7 +13,7 @@ void grid_output(int out_mode,char *grdfilename,
 		 COMP_PRECISION ymax,
 		 COMP_PRECISION dx,COMP_PRECISION dy,
 		 int argc,char **argv,
-		 int lmax,BOOLEAN verbose, void *API)
+		 int lmax,BOOLEAN verbose, void **API)
 {
 
   switch(out_mode){
@@ -50,7 +50,8 @@ void my_gmt_write_grd(float *phival, BOOLEAN verbose,
 		      int nlon, int nlat,
 		      COMP_PRECISION xmin, COMP_PRECISION xmax,
 		      COMP_PRECISION ymin,COMP_PRECISION ymax,
-		      COMP_PRECISION dx, COMP_PRECISION dy, void *API)
+		      COMP_PRECISION dx, COMP_PRECISION dy,
+		      void **API)
 {
 #ifdef USE_GMT4  
   struct GRD_HEADER grd;
@@ -82,9 +83,9 @@ void my_gmt_write_grd(float *phival, BOOLEAN verbose,
     exit (EXIT_FAILURE);
   }
   
-#else  /* GMT > 4  */
+#else  /* GMT >= 5  */
   struct GMT_GRID *G = NULL;        /* Structure to hold output grid */
-  int i,j,ij;
+  int i,j,ij,err;
   double wesn[6];
   double inc[2];
   int pad;
@@ -96,7 +97,7 @@ void my_gmt_write_grd(float *phival, BOOLEAN verbose,
   par[0] = nlon;par[1] = nlat;
   wesn[0] = xmin;wesn[1] = xmax;wesn[2] = ymin; wesn[3] = ymax;wesn[4]=wesn[5]=0;
 
-  G = GMT_Create_Data (API, GMT_IS_GRID, GMT_IS_SURFACE,GMT_CONTAINER_AND_DATA,
+  G = GMT_Create_Data (*API, GMT_IS_GRID, GMT_IS_SURFACE,GMT_CONTAINER_AND_DATA,
 		       par,wesn,inc,GMT_GRID_NODE_REG,pad,NULL);
   if(!G){
     fprintf(stderr,"my_gmt_write_grd: error creating grid for GMT > 4 mode\n");
@@ -108,8 +109,12 @@ void my_gmt_write_grd(float *phival, BOOLEAN verbose,
       G->data[ij] = phival[i*nlon+j];
     }
   }
-  GMT_Write_Data (API, GMT_IS_GRID, GMT_IS_FILE, GMT_IS_SURFACE, GMT_CONTAINER_AND_DATA, NULL, grdfilename, G);
-  GMT_Destroy_Data(API,G->data);
+  err  = GMT_Write_Data (*API, GMT_IS_GRID, GMT_IS_FILE, GMT_IS_SURFACE, GMT_CONTAINER_AND_DATA, NULL, grdfilename, G);
+  if(err){
+    fprintf(stderr,"my_gmt_write_grd: error writing grid\n");
+    exit(-1);
+  }
+  GMT_Destroy_Data(*API,G->data);
 #endif
   if(verbose){
     fprintf(stderr,"%s: my_gmt_write_grd: written to %s\n",argv[0],grdfilename);

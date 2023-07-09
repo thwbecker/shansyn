@@ -14,7 +14,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <math.h>
-
+#include <zlib.h>
 
 
 #ifdef USE_GMT4
