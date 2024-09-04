@@ -40,10 +40,6 @@ struct mod{
 #define REGRESS_XDETERMINED 0
 #define REGRESS_ITERATIVE 1
 //
-// real earth constants
-//
-#define REARTH 6371.
-#define RCMB 2871.
 
 #include "determine_coeff.h"
 // macros

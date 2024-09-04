@@ -57,8 +57,9 @@ struct mod{
 //
 // real earth constants
 //
-#define REARTH 6371.
-#define RCMB 2871.
+#define RADIUS_EARTH 6371.e3
+#define REARTH_KM (RADIUS_EARTH/1e3)
+#define RCMB_KM 2871.
 
 #include "determine_coeff.h"
 // macros

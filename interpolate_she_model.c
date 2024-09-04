@@ -214,7 +214,7 @@ void mean_model(struct mod *out_model,struct mod *model,
 	  }
 	ws += 1.0;
       }else{// weight by radius^2, assuming constant Delta z
-	r=(REARTH - z)/REARTH;// radius
+	r=(REARTH_KM - z)/REARTH_KM;// radius
 	if((r > 1) || (r < 0)){
 	  fprintf(stderr,"mean_models: error, r (%g) out of range, given depth %g\n",r,z);
 	  exit(-1);

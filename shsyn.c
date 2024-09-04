@@ -36,7 +36,7 @@ int main(int argc, char **argv )
     dummy,*p;
   BOOLEAN use_p_array,calcder,verbose,changed_bounds=FALSE,grd_out;
   GMT_PRECISION *gmtval;
-  char grdfilename[200]="";
+  char grdfilename[2000]="";
   FILE *out;
   void *API;   
 #ifdef BE_VERBOSE

@@ -39,7 +39,7 @@
 #endif
 
 
-#define STRING_LENGTH 100
+#define STRING_LENGTH 1000
 
 /* integration modes */
 #define TRAPEZOIDAL 0

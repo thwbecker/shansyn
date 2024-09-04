@@ -109,9 +109,10 @@ void my_gmt_write_grd(float *phival, BOOLEAN verbose,
       G->data[ij] = phival[i*nlon+j];
     }
   }
-  err  = GMT_Write_Data (*API, GMT_IS_GRID, GMT_IS_FILE, GMT_IS_SURFACE, GMT_CONTAINER_AND_DATA, NULL, grdfilename, G);
+  err  = GMT_Write_Data (*API, GMT_IS_GRID, GMT_IS_FILE,
+			 GMT_IS_SURFACE, GMT_CONTAINER_AND_DATA, NULL, grdfilename, G);
   if(err){
-    fprintf(stderr,"my_gmt_write_grd: error writing grid\n");
+    fprintf(stderr,"my_gmt_write_grd: error writing grid, code %i\n",err);
     exit(-1);
   }
   GMT_Destroy_Data(*API,G->data);

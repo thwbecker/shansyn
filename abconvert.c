@@ -413,7 +413,7 @@ int main(int argc, char *argv[] )
     case LMAB_GEOD_INPUT:{
       /* 
 
-	 poloidal / toroidal in geodetic format, lm A B format
+	 geodetic format, lm A B format
 
       */
       if(verbose)
@@ -868,7 +868,7 @@ int main(int argc, char *argv[] )
 	break;
       }
       case ZERO_TAPER:{
-	fprintf(stderr,"%s: setting all coefficients >= l' (%g = %i) to zero\n",argv[0],
+	fprintf(stderr,"%s: setting all coefficients >  l' (%g = %i) to zero\n",argv[0],
 		lc,(int)(lc*(float)lmax1));
 	break;
       }
@@ -1780,6 +1780,10 @@ void taperf(COMP_PRECISION *fac,
 {
   /* should not taper in m since they form a full set */
   COMP_PRECISION lp,tmp,exp_scale=10000;
+  /*  */
+  static COMP_PRECISION r2fac = 1/(REARTH_KM*REARTH_KM);
+  static COMP_PRECISION r2fac_vel = 0.01/(REARTH_KM)*1e6;
+  
   /* fractional l */
   lp=(COMP_PRECISION)l/(COMP_PRECISION)lmax;
   if((lp > 1.0)||(lp < 0)){
@@ -1909,12 +1913,12 @@ void taperf(COMP_PRECISION *fac,
       break;
     }  
     case LAPLACIAN:{
-      fac[0] = fac[1] = -((COMP_PRECISION)l*((COMP_PRECISION)l+1.0));
+      fac[0] = fac[1] = -((COMP_PRECISION)l*((COMP_PRECISION)l+1.0))*r2fac;
       break;
     }  
     case VORTICITY:
     case DIVERGENCE:{		/* divergence of pol/tor field */
-      fac[0] = fac[1] = -sqrt(((COMP_PRECISION)l*((COMP_PRECISION)l+1.0)));
+      fac[0] = fac[1] = -sqrt(((COMP_PRECISION)l*((COMP_PRECISION)l+1.0)))*r2fac_vel;
       break;
     }  
     case FROM_SH_FILE_TAPER:{
@@ -2018,8 +2022,8 @@ void phelp(char *name)
   fprintf(stderr,"\t                 %i:  only m=0 terms are passed\n\n",ONLY_M0_TERMS);
   
   fprintf(stderr,"\t                 %i:  compute Laplacian (multiply with - l(l+1))\n\n",LAPLACIAN);
-  fprintf(stderr,"\t                 %i:  compute divergence of PT field (multiply pol with - sqrt(l(l+1)))\n",DIVERGENCE);
-  fprintf(stderr,"\t                 %i:  compute |vorticity| of PT field (multiply tor with - sqrt(l(l+1)??))\n\n",VORTICITY);
+  fprintf(stderr,"\t                 %i:  compute  divergence         of PT field (multiply pol with - (l(l+1))/Re^2)\n",DIVERGENCE);
+  fprintf(stderr,"\t                 %i:  compute  vertical vorticity of PT field (multiply tor with - (l(l+1))/Re^2\n\n",VORTICITY);
 
   fprintf(stderr,"\t                 %i:  read in w_0 ... w_{l_{max}} weights from file \"%s\"\n",
 	  FROM_FILE_TAPER,FILTER_FILE);

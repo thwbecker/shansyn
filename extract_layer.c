@@ -130,8 +130,8 @@ int main(int argc, char **argv)
     fprintf(stderr,"%s: averaging with dz: %g (from %g to %g), in %i steps, rw2: %i\n",
 	    argv[0],dz*2,zmin,zmax,steps,use_r2_weighting);
     fprintf(stderr,"%s: that is %g%% of the mantle volume\n",argv[0],
-	    (pow(REARTH-zmin,3.0)-pow(REARTH-zmax,3.0))/
-	    (pow(REARTH,3.0)-pow(RCMB,3.0))*100.0);
+	    (pow(REARTH_KM-zmin,3.0)-pow(REARTH_KM-zmax,3.0))/
+	    (pow(REARTH_KM,3.0)-pow(RCMB_KM,3.0))*100.0);
     for(i=0;i < nexp;i++){
       mean_model((out_model+i),(model+i),zmin, zmax,
 		 steps,use_r2_weighting);

@@ -22,7 +22,7 @@
 
 #define RICK_PRE_F (4.0*SQUARE(PI))
 #define RICK_FACTOR(l, m) (RICK_PRE_F/pow(-1.0,(COMP_PRECISION)(m)))
-#define RICK_SCALAR_FACTOR(l, m) (pow(-1.0,(COMP_PRECISION)(-m))*2.0*SQRT_TWO_PI)
+#define RICK_SCALAR_FACTOR(l, m) (2.0*SQRT_TWO_PI*pow(-1.0,(COMP_PRECISION)(-m)))
 
 /* 
    output switches 
@@ -85,6 +85,7 @@
 #define EXP_TAPER 19
 #define HIGHP_TAPER 20
 #define ONLY_M0_TERMS 21
+/*  */
 #define DIVERGENCE 22
 #define VORTICITY 23
 /* 
@@ -114,4 +115,5 @@
 #define TAPERING_DEFAULT NO_TAPER 
 #define AMPLITUDE_DEFAULT 1.0
 #define LC_DEFAULT 0.0
+
 
