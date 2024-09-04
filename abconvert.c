@@ -156,7 +156,7 @@ int main(int argc, char *argv[] )
 	fprintf(stderr,"%s: reading A B format in physical convention%s lmax: %i\n",
 		argv[0],(in_format == AB_INPUT_HC)?(", long hc format,"):(","),lmax);
       if(in_format == AB_INPUT_HC){
-	rc=fscanf(stdin,"%*i %*lf %i %i %*i",&nset,&shps);
+	rc=fscanf(stdin,"%*i %*f %i %i %*i",&nset,&shps);
 	if((nset != 1)||(shps!=1)){
 	  fprintf(stderr,"%s: error with long (hc) format: nset: %i shps: %i\n",
 		  argv[0],nset,shps);
@@ -609,7 +609,7 @@ int main(int argc, char *argv[] )
 	exit(-1);
       }
       if(in_format == AB_INPUT_HC){
-	rc = fscanf(stdin,"%*i %*lf %i %i %*i",&nset,&shps);
+	rc = fscanf(stdin,"%*i %*f %i %i %*i",&nset,&shps);
 	if((nset != 1)||(shps!=1)){
 	  fprintf(stderr,"%s: error with long (hc) format: nset: %i shps: %i\n",
 		  argv[0],nset,shps);
