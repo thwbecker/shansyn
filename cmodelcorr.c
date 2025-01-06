@@ -110,6 +110,8 @@ int main(int argc, char **argv)
     exit(-1);
     break;
   }
+  fprintf(stderr,"%s: zmin: %g dz: %g zmax: %g shift: %g stretch %g L %i extrapolate %i corr_mode: %i expect_gsh: %i\n",
+	  argv[0],zmin,dz,zmax,shift,stretch,llim,extrapolate,cmode,expect_gsh);
   if(dz <= 0){ 
     dz=50;
     fprintf(stderr,"%s: adjusting dz to %g\n",argv[0],dz);
