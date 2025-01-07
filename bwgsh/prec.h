@@ -1,0 +1,7 @@
+#define CPREC real*4
+#define PCAST REAL
+#define LAPACK_CFACTOR SPPTRF
+#define LAPACK_CSOLVER SPPTRS
+
+
+

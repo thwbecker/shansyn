@@ -1,0 +1,47 @@
+Code to trace surface-wave ray paths in presence of azimuthal anisotropy as
+described by Boschi and Woodhouse 2006 (generalized spherical harmonic
+parameterization). 
+
+The Fortran program 
+traceswani_spread_stat.2.f
+with script traceswani_spread_stat.2.csh repeats ray-theory calculations for a
+set of sources and stations (given in file random_locs.txt). For each
+source-station couple the converging ray-path, if found, is saved in a file in
+subdirectory "rays". 
+
+On each line of file spread.nomulti
+epicenter longitude (in degrees)
+epicenter latitude
+station longitude
+station latitude
+epicentral distance
+initial azimuth of converging ray-path
+amplitude anomaly (from eq. 41 of Woodhouse and Wong 1986) of conv. ray-path
+phase anomaly of conv. ray-path
+are recorded in this order, for source-station couples with NO multi-pathing.
+
+On each line of file spread.nomulti the same quantities are recorded for cases
+of multi-pathing (all converging ray-paths are saved).
+
+Sample model animodel... is from Trampert and Woodhouse 2001 (100s Rayleigh
+waves). 
+
+Code to convert back and forth between xyz and generalized-harmonic formats is
+collected in the subdirectory form, with a script file to illustrate/test it.
+
+The program aniso2xyz.f, not included in said script, is nevertheless provided, 
+and might turn out to be useful to convert into generalized spherical harmonics
+some anisotropic models--depending on the format chosen by the authors.
+
+All this software is in raw form. No user-friendlier version exists at the
+time. Please contact lapo@erdw.ethz.ch for comments/questions/advice.
+
+Lapo Boschi, Zurich, August 1st, 2006.
+
+
+Reference:
+Boschi, L., and J. H. Woodhouse, Surface wave ray-tracing and azimuthal
+anisotropy: a generalized spherical harmonic approach, Geophys. J. Int., 164,
+569--578, 2006.
+
+http://www.blackwell-synergy.com/doi/full/10.1111/j.1365-246X.2006.02870.x
