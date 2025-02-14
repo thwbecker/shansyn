@@ -14,16 +14,16 @@ ARCH=$(shell uname -m | awk '{print(tolower($$1))}')
 #GMT_INC = -I$(GMT4HOME)/include/ -I$(NETCDFDIR)/include 
 #GMT_LIB = -L$(GMT4HOME)/lib -lgmt -lpsl
 #
-# these are for newer version
+# these should be defined for newer version >= 5
 #
 GMT_VERSION_OPTION =
-GMT_INC = -I/usr/local/include/gmt/ -I/usr/include/gdal/  #-I$(NETCDFDIR)/include # gmt-config --cflags
-GMT_LIB = -L/usr/local/lib/ -lgmt # gmt-config --libes
+GMT_INC = -I$(GMTHOME)/include/gmt/  -I/usr/include/gdal/  #-I$(NETCDFDIR)/include # gmt-config --cflags
+GMT_LIB = -L$(GMTHOME)/lib/ -lgmt # gmt-config --libes
 #
 # netcdf should work with both
 #
-NETCDF_LIB = -L$(NETCDFDIR)/lib/ -lnetcdf
-#NETCDF_LIB = -L/usr/lib64/mpich/lib/ -lnetcdf
+#NETCDF_LIB = -L$(NETCDFDIR)/lib/ -lnetcdf
+NETCDF_LIB = -L/usr/lib64/mpich/lib/ -lnetcdf
 
 #
 
@@ -86,7 +86,8 @@ ABMODEL_OBJ =   $(ODIR)/powercorr.o         $(ODIR)/write_coefficients.o      $(
 
 #
 # double precision binaries
-PROGRAMS = $(BDIR)/shana $(BDIR)/shsyn $(BDIR)/plotlegendre $(BDIR)/abconvert $(BDIR)/cmodellinreg \
+PROGRAMS = $(BDIR)/shana $(BDIR)/shsyn $(BDIR)/plotlegendre \
+	$(BDIR)/abconvert $(BDIR)/cmodellinreg $(BDIR)/calc_pt_corr \
 	$(BDIR)/cmodelcorr $(BDIR)/cmodelcorr_gsh  \
 	$(BDIR)/abadd $(BDIR)/model2scatter $(BDIR)/cmodelmeancorr \
 	$(BDIR)/calc_radial_corr \
@@ -112,6 +113,7 @@ all: obj_directories  $(PROGRAMS)
 install: all 
 
 auto_proto.h:
+	rm auto_proto.h;\
 	cproto $(INCLUDES) -f2 *.c | grep -v main > auto_proto.h
 
 obj_directories:
@@ -177,6 +179,13 @@ $(BDIR)/abconvert: $(ODIR)/abconvert.o $(ODIR)/select_lms.o \
 	$(ODIR)/abconvert.o $(ODIR)/nr_utils.o  \
 	$(ODIR)/select_lms.o $(ODIR)/gsh_handling.o \
 	$(ODIR)/spear.o -o $@ $(LDFLAGS)
+
+$(BDIR)/calc_pt_corr: $(ODIR)/calc_pt_corr.o $(ODIR)/select_lms.o \
+	$(ODIR)/powercorr.o  	$(ODIR)/gsh_handling.o  $(ODIR)/nr_utils.o \
+	$(ODIR)/write_coefficients.o $(ODIR)/rand.o $(ODIR)/spear.o
+	$(CC) $(INCLUDES)  $(ODIR)/powercorr.o  $(ODIR)/nr_utils.o \
+	$(ODIR)/calc_pt_corr.o  $(ODIR)/select_lms.o $(ODIR)/gsh_handling.o \
+	$(ODIR)/spear.o -o $@ $(LDFLAGS) -lz
 
 $(BDIR)/calc_radial_corr: $(ODIR)/calc_radial_corr.o $(ABMODEL_OBJ) 
 	$(CC) $(INCLUDES)  $(ABMODEL_OBJ)   \
@@ -297,6 +306,9 @@ $(ODIR)/plotlegendre_s.o: plotlegendre.c  $(HFILES)
 
 $(ODIR)/abconvert.o: abconvert.c $(HFILES)
 	$(CC) -c $(CFLAGS) $(INCLUDES) $(OPTIONS) $(FORMATS) abconvert.c -o $@
+
+$(ODIR)/calc_pt_corr.o: calc_pt_corr.c $(HFILES)
+	$(CC) -c $(CFLAGS) $(INCLUDES) $(OPTIONS) $(FORMATS) calc_pt_corr.c -o $@
 
 $(ODIR)/calc_radial_corr.o: calc_radial_corr.c $(HFILES)
 	$(CC) -c $(CFLAGS) $(INCLUDES) $(OPTIONS) $(FORMATS) calc_radial_corr.c -o $@ 
